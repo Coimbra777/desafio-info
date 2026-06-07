@@ -142,7 +142,8 @@ Do not create now:
 
 When the Auth step is requested:
 
-- implement simple login with `nickname` and `password`
+- implement simple login with `email` and `password`
+- keep `nickname` as a user field, but not as the login credential
 - use simple JWT
 - use bcrypt
 - create `JwtAuthGuard`

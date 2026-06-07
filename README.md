@@ -48,6 +48,7 @@ make setup
 make logs
 make down
 make reset
+make clean
 make build
 ```
 
@@ -61,7 +62,23 @@ What each command does:
 - `make logs`: shows API logs
 - `make down`: stops the containers
 - `make reset`: stops the containers and removes volumes
-- `make build`: runs `npm run build` inside the API container
+- `make clean`: removes `dist` inside the API container
+- `make build`: runs `make clean` and then `npm run build` inside the API container
+
+## Redis Cache
+
+Redis cache is used only in `vehicles`.
+
+- `GET /vehicles` uses the `vehicles:list` key
+- `GET /vehicles/:id` uses the `vehicles:detail:{id}` key
+- cache expiration comes from `VEHICLES_CACHE_TTL`
+
+If you hit the known local permission problem with `dist`, use the container flow:
+
+```bash
+make clean
+make build
+```
 
 ## Login Test
 

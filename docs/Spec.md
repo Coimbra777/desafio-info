@@ -216,7 +216,7 @@ docker/
 ### Auth
 
 - `LoginDto`
-  - `nickname: string`
+  - `email: string`
   - `password: string`
 
 ### Models
@@ -270,7 +270,7 @@ docker/
 ### Público
 
 - `POST /auth/login`
-  - autentica com `nickname` e senha
+  - autentica com `email` e senha
   - retorna `accessToken`, `tokenType`, `expiresIn`
 
 ### Protegidos por JWT
@@ -307,13 +307,13 @@ docker/
 
 ### `AuthService`
 
-- validar credenciais por `nickname`
+- validar credenciais por `email`
 - comparar senha com `bcrypt`
 - emitir JWT com `sub`, `nickname` e `email`
 
 ### `UsersService`
 
-- buscar usuário por `nickname`
+- buscar usuário por `email`
 - buscar usuário por `id`
 - garantir seed inicial idempotente
 
@@ -378,7 +378,7 @@ docker/
 
 ## 10. Estratégia de autenticação JWT
 
-- Login por `nickname` + senha.
+- Login por `email` + senha.
 - Usuário seed obrigatório: `aivacol`.
 - Gerar apenas `access token` nesta etapa.
 - Token assinado com `JWT_SECRET`.
@@ -404,20 +404,19 @@ docker/
 
 ### Chaves sugeridas
 
-- `vehicles:version`
-- `vehicles:v{N}:list:{hash-do-filtro}`
-- `vehicles:v{N}:detail:{id}`
+- `vehicles:list`
+- `vehicles:detail:{id}`
 
 ### Decisão
 
-- Usar versionamento de namespace é mais simples e seguro do que deletar chaves com wildcard.
-- Isso evita `KEYS vehicles:*` em produção e mantém a invalidação barata.
+- Usar chaves diretas deixa a implementação mais simples de explicar neste desafio.
+- Não criar versionamento de namespace se a invalidação direta de listagem e detalhe já resolver o fluxo.
 
 ## 12. Estratégia de invalidação de cache
 
-- Ao criar, atualizar ou remover `vehicles`, incrementar `vehicles:version`.
-- As leituras sempre usam a versão atual na composição da chave.
-- Opcionalmente, manter TTL curto a moderado, por exemplo `60` a `300` segundos, definido por ambiente.
+- Ao criar `vehicles`, invalidar `vehicles:list`.
+- Ao atualizar ou remover `vehicles`, invalidar `vehicles:list` e `vehicles:detail:{id}`.
+- Manter TTL curto a moderado, por exemplo `60` a `300` segundos, definido por ambiente.
 
 ### Decisão
 
@@ -495,7 +494,7 @@ docker/
 - `VehiclesCacheService`
   - gera chaves corretas
   - respeita TTL
-  - incrementa versão na invalidação
+  - invalida listagem e detalhe corretamente
 
 ### Integração / e2e
 
@@ -516,23 +515,22 @@ docker/
 
 ### Dockerfile
 
-- multistage
-- estágio `builder` para instalar dependências e compilar
-- estágio `runner` enxuto para produção
-- comando final com `node dist/main.js`
+- Dockerfile simples, sem multistage nesta etapa
+- instalar dependências
+- copiar arquivos do projeto
+- subir a API com o comando de desenvolvimento dentro do container
 
 ### docker-compose.yml
 
-- `app`
+- `api`
 - `sqlserver`
 - `redis`
 
 ### Configuração esperada
 
-- `app` depende de `sqlserver` e `redis`
+- `api` depende de `sqlserver` e `redis`
 - volume persistente para SQL Server
-- volume opcional para Redis
-- healthcheck para SQL Server e Redis
+- healthcheck simples para SQL Server
 
 ### Decisão
 
@@ -545,7 +543,6 @@ docker/
 
 - `NODE_ENV`
 - `PORT`
-- `APP_NAME`
 
 ### Banco SQL Server
 
@@ -566,7 +563,7 @@ docker/
 
 - `REDIS_HOST`
 - `REDIS_PORT`
-- `REDIS_PASSWORD`
+- `REDIS_PASSWORD` opcional
 - `REDIS_DB`
 - `VEHICLES_CACHE_TTL`
 
@@ -634,6 +631,6 @@ docker/
 ## Resumo de direcionamento
 
 - Entregar primeiro `auth`, `models` e `vehicles` com SQL Server, JWT, Redis e testes.
-- Manter `users` mínimo, suficiente para login e `created_by`.
+- Manter `users` mínimo, suficiente para login por `email`, `nickname` como campo cadastral e `created_by`.
 - Tratar `brands` como extensão isolada e opcional.
 - Priorizar clareza, previsibilidade e um desenho simples de explicar e manter.

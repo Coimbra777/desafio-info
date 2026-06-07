@@ -1,4 +1,4 @@
-.PHONY: up database migrate seed setup logs down reset build
+.PHONY: up database migrate seed setup logs down reset build clean
 
 up:
 	docker compose up -d --build
@@ -23,8 +23,8 @@ down:
 reset:
 	docker compose down -v
 
-build:
-	docker compose exec api npm run build
-
 clean:
 	docker compose exec api rm -rf dist
+
+build: clean
+	docker compose exec api npm run build

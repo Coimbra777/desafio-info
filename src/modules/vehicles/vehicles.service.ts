@@ -9,6 +9,7 @@ import { Repository } from "typeorm";
 import { Model } from "../models/entities/model.entity";
 import { CreateVehicleDto } from "./dto/create-vehicle.dto";
 import { UpdateVehicleDto } from "./dto/update-vehicle.dto";
+import { VehiclesCacheService } from "./vehicles-cache.service";
 import { Vehicle } from "./entities/vehicle.entity";
 
 @Injectable()
@@ -18,6 +19,7 @@ export class VehiclesService {
     private readonly vehiclesRepository: Repository<Vehicle>,
     @InjectRepository(Model)
     private readonly modelsRepository: Repository<Model>,
+    private readonly vehiclesCacheService: VehiclesCacheService,
   ) {}
 
   async create(
@@ -36,12 +38,19 @@ export class VehiclesService {
     });
 
     const savedVehicle = await this.vehiclesRepository.save(vehicle);
+    await this.vehiclesCacheService.invalidateList();
 
     return this.findOne(savedVehicle.id);
   }
 
-  findAll(): Promise<Vehicle[]> {
-    return this.vehiclesRepository.find({
+  async findAll(): Promise<Vehicle[]> {
+    const cachedVehicles = await this.vehiclesCacheService.getList();
+
+    if (cachedVehicles) {
+      return cachedVehicles;
+    }
+
+    const vehicles = await this.vehiclesRepository.find({
       relations: {
         model: true,
       },
@@ -49,9 +58,19 @@ export class VehiclesService {
         createdAt: "ASC",
       },
     });
+
+    await this.vehiclesCacheService.setList(vehicles);
+
+    return vehicles;
   }
 
   async findOne(id: number): Promise<Vehicle> {
+    const cachedVehicle = await this.vehiclesCacheService.getDetail(id);
+
+    if (cachedVehicle) {
+      return cachedVehicle;
+    }
+
     const vehicle = await this.vehiclesRepository.findOne({
       where: { id },
       relations: {
@@ -62,6 +81,8 @@ export class VehiclesService {
     if (!vehicle) {
       throw new NotFoundException("Vehicle not found");
     }
+
+    await this.vehiclesCacheService.setDetail(vehicle);
 
     return vehicle;
   }
@@ -107,6 +128,8 @@ export class VehiclesService {
     }
 
     const savedVehicle = await this.vehiclesRepository.save(vehicle);
+    await this.vehiclesCacheService.invalidateList();
+    await this.vehiclesCacheService.invalidateDetail(id);
 
     return this.findOne(savedVehicle.id);
   }
@@ -115,6 +138,8 @@ export class VehiclesService {
     const vehicle = await this.findOne(id);
 
     await this.vehiclesRepository.remove(vehicle);
+    await this.vehiclesCacheService.invalidateList();
+    await this.vehiclesCacheService.invalidateDetail(id);
   }
 
   private async ensureLicensePlateAvailable(
