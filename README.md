@@ -65,6 +65,28 @@ What each command does:
 - `make clean`: removes `dist` inside the API container
 - `make build`: runs `make clean` and then `npm run build` inside the API container
 
+## Tests
+
+Run unit tests:
+
+```bash
+npm run test
+```
+
+Run e2e tests:
+
+```bash
+npm run test:e2e
+```
+
+Current automated coverage:
+
+- `AuthService` unit tests
+- `ModelsService` unit tests
+- `VehiclesService` unit tests, including cache behavior
+- login and protected routes in e2e
+- authenticated creation of `models` and `vehicles` in e2e
+
 ## Redis Cache
 
 Redis cache is used only in `vehicles`.
