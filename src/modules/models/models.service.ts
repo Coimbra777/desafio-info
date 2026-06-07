@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { Vehicle } from "../vehicles/entities/vehicle.entity";
 import { CreateModelDto } from "./dto/create-model.dto";
 import { UpdateModelDto } from "./dto/update-model.dto";
 import { Model } from "./entities/model.entity";
@@ -10,10 +11,15 @@ export class ModelsService {
   constructor(
     @InjectRepository(Model)
     private readonly modelsRepository: Repository<Model>,
+    @InjectRepository(Vehicle)
+    private readonly vehiclesRepository: Repository<Vehicle>,
   ) {}
 
-  async create(createModelDto: CreateModelDto): Promise<Model> {
-    const model = this.modelsRepository.create(createModelDto);
+  async create(createModelDto: CreateModelDto, userId: number): Promise<Model> {
+    const model = this.modelsRepository.create({
+      ...createModelDto,
+      createdBy: userId,
+    });
 
     return this.modelsRepository.save(model);
   }
@@ -50,6 +56,15 @@ export class ModelsService {
 
   async remove(id: number): Promise<void> {
     const model = await this.findOne(id);
+    const linkedVehiclesCount = await this.vehiclesRepository.count({
+      where: { modelId: id },
+    });
+
+    if (linkedVehiclesCount > 0) {
+      throw new ConflictException(
+        "Cannot delete model because it has vehicles linked",
+      );
+    }
 
     await this.modelsRepository.remove(model);
   }

@@ -25,3 +25,6 @@ reset:
 
 build:
 	docker compose exec api npm run build
+
+clean:
+	docker compose exec api rm -rf dist

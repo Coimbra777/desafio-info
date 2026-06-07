@@ -2,10 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { User } from "../../users/entities/user.entity";
 import { Vehicle } from "../../vehicles/entities/vehicle.entity";
 
 @Entity("models")
@@ -15,6 +18,13 @@ export class Model {
 
   @Column({ name: "name", type: "nvarchar", length: 120 })
   name!: string;
+
+  @Column({ name: "created_by", type: "int" })
+  createdBy!: number;
+
+  @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: "created_by" })
+  creator!: User;
 
   @OneToMany(() => Vehicle, (vehicle) => vehicle.model)
   vehicles!: Vehicle[];

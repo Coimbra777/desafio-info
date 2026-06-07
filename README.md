@@ -101,6 +101,8 @@ curl -X POST http://localhost:3000/models \
   -d '{"name":"Corolla"}'
 ```
 
+`created_by` is filled automatically from the authenticated user.
+
 Create a vehicle linked to a model:
 
 ```bash

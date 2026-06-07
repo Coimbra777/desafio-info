@@ -190,6 +190,7 @@ docker/
 - `password_hash` precisa existir mesmo não estando explícito no PRD; sem isso o JWT não tem credencial real.
 - `created_by` deve ser FK para `users.id`, e não texto livre, para manter consistência relacional.
 - `updated_by` não será adicionado agora; o PRD só exige `created_by`, `created_at` e `updated_at`.
+- `created_by` de `models` e `vehicles` deve vir do usuário autenticado no JWT.
 
 ## 5. Relacionamentos entre entidades
 

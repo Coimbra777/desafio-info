@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Request,
   UseGuards,
 } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -21,8 +22,11 @@ export class ModelsController {
   constructor(private readonly modelsService: ModelsService) {}
 
   @Post()
-  create(@Body() createModelDto: CreateModelDto) {
-    return this.modelsService.create(createModelDto);
+  create(
+    @Body() createModelDto: CreateModelDto,
+    @Request() req: { user: { id: number } },
+  ) {
+    return this.modelsService.create(createModelDto, req.user.id);
   }
 
   @Get()

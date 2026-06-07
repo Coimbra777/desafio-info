@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table } from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
 
 export class CreateModelsTable1717900000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -21,6 +21,11 @@ export class CreateModelsTable1717900000000 implements MigrationInterface {
             isNullable: false,
           },
           {
+            name: 'created_by',
+            type: 'int',
+            isNullable: false,
+          },
+          {
             name: 'created_at',
             type: 'datetime2',
             isNullable: false,
@@ -35,9 +40,21 @@ export class CreateModelsTable1717900000000 implements MigrationInterface {
         ],
       }),
     );
+
+    await queryRunner.createForeignKey(
+      'models',
+      new TableForeignKey({
+        name: 'FK_models_created_by_users_id',
+        columnNames: ['created_by'],
+        referencedTableName: 'users',
+        referencedColumnNames: ['id'],
+        onDelete: 'NO ACTION',
+      }),
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropForeignKey('models', 'FK_models_created_by_users_id');
     await queryRunner.dropTable('models');
   }
 }

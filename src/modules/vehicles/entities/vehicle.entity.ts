@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Model } from "../../models/entities/model.entity";
+import { User } from "../../users/entities/user.entity";
 
 @Entity("vehicles")
 export class Vehicle {
@@ -47,6 +48,13 @@ export class Vehicle {
   @ManyToOne(() => Model, (model) => model.vehicles, { nullable: false })
   @JoinColumn({ name: "model_id" })
   model!: Model;
+
+  @Column({ name: "created_by", type: "int" })
+  createdBy!: number;
+
+  @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: "created_by" })
+  creator!: User;
 
   @CreateDateColumn({
     name: "created_at",

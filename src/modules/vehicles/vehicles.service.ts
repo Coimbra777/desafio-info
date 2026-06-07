@@ -3,13 +3,13 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Model } from '../models/entities/model.entity';
-import { CreateVehicleDto } from './dto/create-vehicle.dto';
-import { UpdateVehicleDto } from './dto/update-vehicle.dto';
-import { Vehicle } from './entities/vehicle.entity';
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Model } from "../models/entities/model.entity";
+import { CreateVehicleDto } from "./dto/create-vehicle.dto";
+import { UpdateVehicleDto } from "./dto/update-vehicle.dto";
+import { Vehicle } from "./entities/vehicle.entity";
 
 @Injectable()
 export class VehiclesService {
@@ -20,7 +20,10 @@ export class VehiclesService {
     private readonly modelsRepository: Repository<Model>,
   ) {}
 
-  async create(createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
+  async create(
+    createVehicleDto: CreateVehicleDto,
+    userId: number,
+  ): Promise<Vehicle> {
     await this.ensureLicensePlateAvailable(createVehicleDto.licensePlate);
     await this.ensureChassisAvailable(createVehicleDto.chassis);
     await this.ensureRenavamAvailable(createVehicleDto.renavam);
@@ -28,6 +31,7 @@ export class VehiclesService {
 
     const vehicle = this.vehiclesRepository.create({
       ...createVehicleDto,
+      createdBy: userId,
       model,
     });
 
@@ -42,7 +46,7 @@ export class VehiclesService {
         model: true,
       },
       order: {
-        createdAt: 'ASC',
+        createdAt: "ASC",
       },
     });
   }
@@ -56,7 +60,7 @@ export class VehiclesService {
     });
 
     if (!vehicle) {
-      throw new NotFoundException('Vehicle not found');
+      throw new NotFoundException("Vehicle not found");
     }
 
     return vehicle;
@@ -121,7 +125,7 @@ export class VehiclesService {
     });
 
     if (existingVehicle) {
-      throw new ConflictException('License plate already exists');
+      throw new ConflictException("License plate already exists");
     }
   }
 
@@ -131,7 +135,7 @@ export class VehiclesService {
     });
 
     if (existingVehicle) {
-      throw new ConflictException('Chassis already exists');
+      throw new ConflictException("Chassis already exists");
     }
   }
 
@@ -141,7 +145,7 @@ export class VehiclesService {
     });
 
     if (existingVehicle) {
-      throw new ConflictException('Renavam already exists');
+      throw new ConflictException("Renavam already exists");
     }
   }
 
@@ -151,7 +155,7 @@ export class VehiclesService {
     });
 
     if (!model) {
-      throw new BadRequestException('Model not found');
+      throw new BadRequestException("Model not found");
     }
 
     return model;

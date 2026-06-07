@@ -49,6 +49,11 @@ export class CreateVehiclesTable1718000000000 implements MigrationInterface {
             isNullable: false,
           },
           {
+            name: 'created_by',
+            type: 'int',
+            isNullable: false,
+          },
+          {
             name: 'created_at',
             type: 'datetime2',
             isNullable: false,
@@ -70,6 +75,17 @@ export class CreateVehiclesTable1718000000000 implements MigrationInterface {
         name: 'FK_vehicles_model_id_models_id',
         columnNames: ['model_id'],
         referencedTableName: 'models',
+        referencedColumnNames: ['id'],
+        onDelete: 'NO ACTION',
+      }),
+    );
+
+    await queryRunner.createForeignKey(
+      'vehicles',
+      new TableForeignKey({
+        name: 'FK_vehicles_created_by_users_id',
+        columnNames: ['created_by'],
+        referencedTableName: 'users',
         referencedColumnNames: ['id'],
         onDelete: 'NO ACTION',
       }),
@@ -104,6 +120,7 @@ export class CreateVehiclesTable1718000000000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropForeignKey('vehicles', 'FK_vehicles_created_by_users_id');
     await queryRunner.dropForeignKey('vehicles', 'FK_vehicles_model_id_models_id');
     await queryRunner.dropIndex('vehicles', 'UQ_vehicles_renavam');
     await queryRunner.dropIndex('vehicles', 'UQ_vehicles_chassis');
