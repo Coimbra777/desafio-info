@@ -30,7 +30,7 @@
 
 - Usar arquitetura modular padrão do NestJS para facilitar leitura, manutenção e defesa em entrevista.
 - Usar `TypeORM Repository` padrão via `@InjectRepository(...)`; repositórios customizados não são necessários para o escopo.
-- Usar UUID como chave primária em todas as entidades para simplificar referências e evitar dependência de identidade incremental do SQL Server.
+- Usar `id` numérico incremental como chave primária nas entidades para manter o modelo mais simples de explicar e compatível com o fluxo atual no SQL Server.
 - Manter `users` como módulo mínimo obrigatório para autenticação e `created_by`, mas sem expandir CRUD completo na primeira entrega.
 - Tratar `brands` como bônus controlado, isolado do fluxo principal para não atrasar o escopo obrigatório.
 
@@ -148,7 +148,7 @@ docker/
 
 ### `User`
 
-- `id: uuid`
+- `id: number` incremental
 - `nickname: string` único
 - `name: string`
 - `email: string` único
@@ -158,30 +158,30 @@ docker/
 
 ### `Model`
 
-- `id: uuid`
+- `id: number` incremental
 - `name: string`
-- `brand_id: uuid | null` apenas se bônus `brands` for habilitado
-- `created_by: uuid`
+- `brand_id: number | null` apenas se bônus `brands` for habilitado
+- `created_by: number`
 - `created_at: datetime2`
 - `updated_at: datetime2`
 
 ### `Vehicle`
 
-- `id: uuid`
+- `id: number` incremental
 - `license_plate: string` único
 - `chassis: string` único
 - `renavam: string` único
 - `year: number`
-- `model_id: uuid`
-- `created_by: uuid`
+- `model_id: number`
+- `created_by: number`
 - `created_at: datetime2`
 - `updated_at: datetime2`
 
 ### `Brand` — bônus controlado
 
-- `id: uuid`
+- `id: number` incremental
 - `name: string` único
-- `created_by: uuid`
+- `created_by: number`
 - `created_at: datetime2`
 - `updated_at: datetime2`
 
@@ -222,15 +222,15 @@ docker/
 
 - `CreateModelDto`
   - `name: string`
-  - `brandId?: string`
+  - `brandId?: number`
 - `UpdateModelDto`
   - `name?: string`
-  - `brandId?: string | null`
+  - `brandId?: number | null`
 - `ListModelsQueryDto`
   - `page?: number`
   - `limit?: number`
   - `search?: string`
-  - `brandId?: string`
+  - `brandId?: number`
 
 ### Vehicles
 
@@ -239,17 +239,17 @@ docker/
   - `chassis: string`
   - `renavam: string`
   - `year: number`
-  - `modelId: string`
+  - `modelId: number`
 - `UpdateVehicleDto`
   - `licensePlate?: string`
   - `chassis?: string`
   - `renavam?: string`
   - `year?: number`
-  - `modelId?: string`
+  - `modelId?: number`
 - `ListVehiclesQueryDto`
   - `page?: number`
   - `limit?: number`
-  - `modelId?: string`
+  - `modelId?: number`
   - `year?: number`
   - `licensePlate?: string`
 
@@ -381,7 +381,7 @@ docker/
 - Gerar apenas `access token` nesta etapa.
 - Token assinado com `JWT_SECRET`.
 - Claims mínimas:
-  - `sub`
+  - `sub` (`number`)
   - `nickname`
   - `email`
 - Guard global ou guard por controller para proteger todas as rotas de negócio.
