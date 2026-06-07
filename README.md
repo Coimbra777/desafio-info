@@ -82,6 +82,40 @@ Expected response:
 }
 ```
 
+## CRUD Examples
+
+Use numeric ids in the protected CRUD routes.
+
+Examples:
+
+- `GET /users/1`
+- `GET /models/1`
+- `GET /vehicles/1`
+
+Create a model:
+
+```bash
+curl -X POST http://localhost:3000/models \
+  -H "Authorization: Bearer TOKEN_JWT" \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Corolla"}'
+```
+
+Create a vehicle linked to a model:
+
+```bash
+curl -X POST http://localhost:3000/vehicles \
+  -H "Authorization: Bearer TOKEN_JWT" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "licensePlate":"ABC1234",
+    "chassis":"9BWZZZ377VT004251",
+    "renavam":"12345678901",
+    "year":2024,
+    "modelId":1
+  }'
+```
+
 ## DBeaver Validation
 
 Use these connection settings:

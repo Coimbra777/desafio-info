@@ -2,26 +2,22 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { Vehicle } from "../../vehicles/entities/vehicle.entity";
 
-@Entity("users")
-export class User {
+@Entity("models")
+export class Model {
   @PrimaryGeneratedColumn()
   id!: number;
-
-  @Column({ name: "nickname", type: "nvarchar", length: 50, nullable: true })
-  nickname!: string | null;
 
   @Column({ name: "name", type: "nvarchar", length: 120 })
   name!: string;
 
-  @Column({ name: "email", type: "nvarchar", length: 255, unique: true })
-  email!: string;
-
-  @Column({ name: "password_hash", type: "nvarchar", length: 255 })
-  passwordHash!: string;
+  @OneToMany(() => Vehicle, (vehicle) => vehicle.model)
+  vehicles!: Vehicle[];
 
   @CreateDateColumn({
     name: "created_at",

@@ -40,6 +40,7 @@ Avoid:
 - too many layers
 - too many scripts
 - too many modules before they are needed
+- UUID in main entities
 
 ## Mandatory Strategy
 
@@ -94,6 +95,8 @@ The Docker setup must be easy to explain:
 - TypeORM is mandatory.
 - `synchronize: false` must stay.
 - use manual migrations
+- use numeric incremental `id` in the main entities
+- do not use UUID in this project
 - do not use Prisma
 - do not use PostgreSQL, MySQL, or SQLite
 
@@ -116,6 +119,7 @@ Use simple standard NestJS:
 - Service
 - Entity
 - DTO
+- numeric `:id` params in controllers
 
 Do not create now:
 
@@ -205,3 +209,10 @@ After coding, always inform:
 If an improvement seems interesting but is not necessary now, do not implement it. Write it only as a future suggestion.
 
 Always choose the simplest solution that satisfies the current requirement.
+
+## ID Rules
+
+- Use numeric incremental `id` in the main entities.
+- Do not use UUID in this project.
+- Controllers must treat `:id` params as numbers.
+- Endpoint examples must use numeric ids like `/users/1`, `/models/1`, `/vehicles/1`.

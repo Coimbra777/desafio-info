@@ -31,6 +31,7 @@
 - Usar arquitetura modular padrão do NestJS para facilitar leitura, manutenção e defesa em entrevista.
 - Usar `TypeORM Repository` padrão via `@InjectRepository(...)`; repositórios customizados não são necessários para o escopo.
 - Usar `id` numérico incremental como chave primária nas entidades para manter o modelo mais simples de explicar e compatível com o fluxo atual no SQL Server.
+- Não usar UUID nas entidades principais deste projeto.
 - Manter `users` como módulo mínimo obrigatório para autenticação e `created_by`, mas sem expandir CRUD completo na primeira entrega.
 - Tratar `brands` como bônus controlado, isolado do fluxo principal para não atrasar o escopo obrigatório.
 
@@ -173,7 +174,6 @@ docker/
 - `renavam: string` único
 - `year: number`
 - `model_id: number`
-- `created_by: number`
 - `created_at: datetime2`
 - `updated_at: datetime2`
 
@@ -278,25 +278,25 @@ docker/
 
 - `POST /models`
 - `GET /models`
-- `GET /models/:id`
-- `PATCH /models/:id`
-- `DELETE /models/:id`
+- `GET /models/1`
+- `PATCH /models/1`
+- `DELETE /models/1`
 
 #### Vehicles
 
 - `POST /vehicles`
 - `GET /vehicles`
-- `GET /vehicles/:id`
-- `PATCH /vehicles/:id`
-- `DELETE /vehicles/:id`
+- `GET /vehicles/1`
+- `PATCH /vehicles/1`
+- `DELETE /vehicles/1`
 
 #### Brands — bônus controlado
 
 - `POST /brands`
 - `GET /brands`
-- `GET /brands/:id`
-- `PATCH /brands/:id`
-- `DELETE /brands/:id`
+- `GET /brands/1`
+- `PATCH /brands/1`
+- `DELETE /brands/1`
 
 ### Decisão
 
@@ -353,6 +353,7 @@ docker/
 ### Regras de negócio explícitas
 
 - todas as rotas de negócio exigem JWT válido
+- parâmetros `:id` dos controllers devem ser numéricos
 - `created_by` deve ser preenchido sempre com o usuário autenticado
 - operações de escrita em `vehicles` sempre invalidam o cache
 - `models` não podem ser removidos se houver `vehicles` vinculados

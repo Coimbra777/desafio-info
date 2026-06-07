@@ -3,7 +3,9 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { validateEnv } from "./config/validation.config";
 import { AuthModule } from "./modules/auth/auth.module";
+import { ModelsModule } from "./modules/models/models.module";
 import { UsersModule } from "./modules/users/users.module";
+import { VehiclesModule } from "./modules/vehicles/vehicles.module";
 
 @Module({
   imports: [
@@ -13,6 +15,7 @@ import { UsersModule } from "./modules/users/users.module";
       envFilePath: ".env",
       validate: validateEnv,
     }),
+
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
@@ -33,8 +36,11 @@ import { UsersModule } from "./modules/users/users.module";
         migrationsRun: false,
       }),
     }),
+
     AuthModule,
+    ModelsModule,
     UsersModule,
+    VehiclesModule,
   ],
 })
 export class AppModule {}

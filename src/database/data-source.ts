@@ -1,7 +1,9 @@
 import "dotenv/config";
 import { DataSource } from "typeorm";
 import { validateEnv } from "../config/validation.config";
+import { Model } from "../modules/models/entities/model.entity";
 import { User } from "../modules/users/entities/user.entity";
+import { Vehicle } from "../modules/vehicles/entities/vehicle.entity";
 
 validateEnv(process.env);
 
@@ -12,7 +14,7 @@ export default new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  entities: [User],
+  entities: [User, Model, Vehicle],
   migrations: ["src/database/migrations/*.ts"],
   synchronize: false,
   options: {
