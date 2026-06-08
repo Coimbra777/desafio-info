@@ -1,5 +1,6 @@
 import { ConflictException, NotFoundException } from "@nestjs/common";
 import { Repository } from "typeorm";
+import { Brand } from "../brands/entities/brand.entity";
 import { Vehicle } from "../vehicles/entities/vehicle.entity";
 import { Model } from "./entities/model.entity";
 import { ModelsService } from "./models.service";
@@ -11,6 +12,7 @@ describe("ModelsService", () => {
     "create" | "findOne" | "save" | "remove"
   >>;
   let vehiclesRepository: jest.Mocked<Pick<Repository<Vehicle>, "count">>;
+  let brandsRepository: jest.Mocked<Pick<Repository<Brand>, "findOne">>;
 
   beforeEach(() => {
     modelsRepository = {
@@ -24,9 +26,14 @@ describe("ModelsService", () => {
       count: jest.fn(),
     };
 
+    brandsRepository = {
+      findOne: jest.fn(),
+    };
+
     modelsService = new ModelsService(
       modelsRepository as unknown as Repository<Model>,
       vehiclesRepository as unknown as Repository<Vehicle>,
+      brandsRepository as unknown as Repository<Brand>,
     );
   });
 
@@ -44,6 +51,9 @@ describe("ModelsService", () => {
     expect(result).toEqual(model);
     expect(modelsRepository.findOne).toHaveBeenCalledWith({
       where: { id: model.id },
+      relations: {
+        brand: true,
+      },
     });
   });
 
@@ -56,15 +66,19 @@ describe("ModelsService", () => {
   });
 
   it("creates a model with createdBy", async () => {
+    const brand = createBrand();
     const createdModel = createModel();
 
+    brandsRepository.findOne.mockResolvedValue(brand);
     modelsRepository.create.mockReturnValue(createdModel);
     modelsRepository.save.mockResolvedValue(createdModel);
 
-    const result = await modelsService.create({ name: "Corolla" }, 1);
+    const result = await modelsService.create({ name: "Corolla", brandId: 1 }, 1);
 
     expect(modelsRepository.create).toHaveBeenCalledWith({
       name: "Corolla",
+      brandId: 1,
+      brand,
       createdBy: 1,
     });
     expect(modelsRepository.save).toHaveBeenCalledWith(createdModel);
@@ -136,9 +150,23 @@ function createModel(): Model {
   return {
     id: 1,
     name: "Corolla",
+    brandId: 1,
+    brand: createBrand(),
     createdBy: 1,
     creator: undefined as never,
     vehicles: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+}
+
+function createBrand(): Brand {
+  return {
+    id: 1,
+    name: "Toyota",
+    createdBy: 1,
+    creator: undefined as never,
+    models: [],
     createdAt: new Date(),
     updatedAt: new Date(),
   };

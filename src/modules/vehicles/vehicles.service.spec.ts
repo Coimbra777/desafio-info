@@ -1,5 +1,6 @@
 import { NotFoundException } from "@nestjs/common";
 import { Repository } from "typeorm";
+import { Brand } from "../brands/entities/brand.entity";
 import { Model } from "../models/entities/model.entity";
 import { VehiclesCacheService } from "./vehicles-cache.service";
 import { Vehicle } from "./entities/vehicle.entity";
@@ -202,9 +203,23 @@ function createModel(): Model {
   return {
     id: 1,
     name: "Corolla",
+    brandId: 1,
+    brand: createBrand(),
     createdBy: 1,
     creator: undefined as never,
     vehicles: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+}
+
+function createBrand(): Brand {
+  return {
+    id: 1,
+    name: "Toyota",
+    createdBy: 1,
+    creator: undefined as never,
+    models: [],
     createdAt: new Date(),
     updatedAt: new Date(),
   };

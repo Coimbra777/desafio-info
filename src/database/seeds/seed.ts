@@ -1,11 +1,11 @@
 import "dotenv/config";
 import * as bcrypt from "bcrypt";
-import { validateEnv } from "../../config/validation.config";
+import { validateSeedEnv } from "../../config/validation.config";
 import dataSource from "../data-source";
 import { User } from "../../modules/users/entities/user.entity";
 
 async function runSeeds(): Promise<void> {
-  validateEnv(process.env);
+  validateSeedEnv(process.env);
 
   await dataSource.initialize();
 

@@ -8,6 +8,7 @@ import { AuthController } from "../src/modules/auth/auth.controller";
 import { AuthService } from "../src/modules/auth/auth.service";
 import { JwtAuthGuard } from "../src/modules/auth/guards/jwt-auth.guard";
 import { JwtStrategy } from "../src/modules/auth/strategies/jwt.strategy";
+import { Brand } from "../src/modules/brands/entities/brand.entity";
 import { Model } from "../src/modules/models/entities/model.entity";
 import { ModelsController } from "../src/modules/models/models.controller";
 import { ModelsService } from "../src/modules/models/models.service";
@@ -35,7 +36,7 @@ describe("Auth e2e", () => {
     modelsServiceMock = {
       findAll: jest.fn(async () => []),
       create: jest.fn(async (createModelDto, userId: number) =>
-        createModel(createModelDto.name, userId),
+        createModel(createModelDto.name, createBrand(), userId),
       ),
     };
 
@@ -153,16 +154,18 @@ describe("Auth e2e", () => {
       .set("Authorization", `Bearer ${accessToken}`)
       .send({
         name: "Corolla",
+        brandId: 1,
       });
 
     expect([200, 201]).toContain(response.status);
     expect(response.body).toMatchObject({
       id: 1,
       name: "Corolla",
+      brandId: 1,
       createdBy: 1,
     });
     expect(modelsServiceMock.create).toHaveBeenCalledWith(
-      { name: "Corolla" },
+      { name: "Corolla", brandId: 1 },
       1,
     );
   });
@@ -221,13 +224,27 @@ async function loginAndGetToken(app: INestApplication): Promise<string> {
   return response.body.accessToken;
 }
 
-function createModel(name: string, createdBy: number): Model {
+function createModel(name: string, brand: Brand, createdBy: number): Model {
   return {
     id: 1,
     name,
+    brandId: brand.id,
+    brand,
     createdBy,
     creator: undefined as never,
     vehicles: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+}
+
+function createBrand(): Brand {
+  return {
+    id: 1,
+    name: "Toyota",
+    createdBy: 1,
+    creator: undefined as never,
+    models: [],
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -250,7 +267,7 @@ function createVehicle(
     renavam: dto.renavam,
     year: dto.year,
     modelId: dto.modelId,
-    model: createModel("Corolla", createdBy),
+    model: createModel("Corolla", createBrand(), createdBy),
     createdBy,
     creator: undefined as never,
     createdAt: new Date(),

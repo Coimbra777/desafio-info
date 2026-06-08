@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { validateEnv } from "./config/validation.config";
 import { AuthModule } from "./modules/auth/auth.module";
+import { BrandsModule } from "./modules/brands/brands.module";
 import { ModelsModule } from "./modules/models/models.module";
 import { UsersModule } from "./modules/users/users.module";
 import { VehiclesModule } from "./modules/vehicles/vehicles.module";
@@ -38,6 +39,7 @@ import { VehiclesModule } from "./modules/vehicles/vehicles.module";
     }),
 
     AuthModule,
+    BrandsModule,
     ModelsModule,
     UsersModule,
     VehiclesModule,

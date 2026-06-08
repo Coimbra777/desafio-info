@@ -137,10 +137,19 @@ Create a model:
 curl -X POST http://localhost:3000/models \
   -H "Authorization: Bearer TOKEN_JWT" \
   -H 'Content-Type: application/json' \
-  -d '{"name":"Corolla"}'
+  -d '{"name":"Corolla","brandId":1}'
 ```
 
 `created_by` is filled automatically from the authenticated user.
+
+Create a brand:
+
+```bash
+curl -X POST http://localhost:3000/brands \
+  -H "Authorization: Bearer TOKEN_JWT" \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Toyota"}'
+```
 
 Create a vehicle linked to a model:
 

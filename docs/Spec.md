@@ -161,7 +161,7 @@ docker/
 
 - `id: number` incremental
 - `name: string`
-- `brand_id: number | null` apenas se bônus `brands` for habilitado
+- `brand_id: number`
 - `created_by: number`
 - `created_at: datetime2`
 - `updated_at: datetime2`
@@ -198,7 +198,7 @@ docker/
 - `User 1:N Vehicle`
 - `User 1:N Brand` se bônus estiver ativo
 - `Model 1:N Vehicle`
-- `Brand 1:N Model` se bônus estiver ativo
+- `Brand 1:N Model`
 
 ### Regras relacionais
 
@@ -223,10 +223,10 @@ docker/
 
 - `CreateModelDto`
   - `name: string`
-  - `brandId?: number`
+  - `brandId: number`
 - `UpdateModelDto`
   - `name?: string`
-  - `brandId?: number | null`
+  - `brandId?: number`
 - `ListModelsQueryDto`
   - `page?: number`
   - `limit?: number`

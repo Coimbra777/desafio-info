@@ -1,10 +1,10 @@
 import "dotenv/config";
-import { validateEnv } from "../config/validation.config";
+import { validateDatabaseEnv } from "../config/validation.config";
 
 const mssql = require("mssql");
 
 async function createDatabaseIfNeeded(): Promise<void> {
-  validateEnv(process.env);
+  validateDatabaseEnv(process.env);
 
   const databaseName = process.env.DB_DATABASE as string;
   const escapedDatabaseName = databaseName.replace(/]/g, "]]");

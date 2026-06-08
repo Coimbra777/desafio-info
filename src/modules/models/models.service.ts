@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { Brand } from "../brands/entities/brand.entity";
 import { Vehicle } from "../vehicles/entities/vehicle.entity";
 import { CreateModelDto } from "./dto/create-model.dto";
 import { UpdateModelDto } from "./dto/update-model.dto";
@@ -13,11 +14,16 @@ export class ModelsService {
     private readonly modelsRepository: Repository<Model>,
     @InjectRepository(Vehicle)
     private readonly vehiclesRepository: Repository<Vehicle>,
+    @InjectRepository(Brand)
+    private readonly brandsRepository: Repository<Brand>,
   ) {}
 
   async create(createModelDto: CreateModelDto, userId: number): Promise<Model> {
+    const brand = await this.ensureBrandExists(createModelDto.brandId);
+
     const model = this.modelsRepository.create({
       ...createModelDto,
+      brand,
       createdBy: userId,
     });
 
@@ -26,6 +32,9 @@ export class ModelsService {
 
   findAll(): Promise<Model[]> {
     return this.modelsRepository.find({
+      relations: {
+        brand: true,
+      },
       order: {
         createdAt: "ASC",
       },
@@ -35,6 +44,9 @@ export class ModelsService {
   async findOne(id: number): Promise<Model> {
     const model = await this.modelsRepository.findOne({
       where: { id },
+      relations: {
+        brand: true,
+      },
     });
 
     if (!model) {
@@ -49,6 +61,12 @@ export class ModelsService {
 
     if (updateModelDto.name !== undefined) {
       model.name = updateModelDto.name;
+    }
+
+    if (updateModelDto.brandId !== undefined) {
+      const brand = await this.ensureBrandExists(updateModelDto.brandId);
+      model.brandId = updateModelDto.brandId;
+      model.brand = brand;
     }
 
     return this.modelsRepository.save(model);
@@ -67,5 +85,17 @@ export class ModelsService {
     }
 
     await this.modelsRepository.remove(model);
+  }
+
+  private async ensureBrandExists(brandId: number): Promise<Brand> {
+    const brand = await this.brandsRepository.findOne({
+      where: { id: brandId },
+    });
+
+    if (!brand) {
+      throw new NotFoundException("Brand not found");
+    }
+
+    return brand;
   }
 }

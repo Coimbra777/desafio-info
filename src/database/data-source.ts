@@ -1,11 +1,12 @@
 import "dotenv/config";
 import { DataSource } from "typeorm";
-import { validateEnv } from "../config/validation.config";
+import { validateDatabaseEnv } from "../config/validation.config";
+import { Brand } from "../modules/brands/entities/brand.entity";
 import { Model } from "../modules/models/entities/model.entity";
 import { User } from "../modules/users/entities/user.entity";
 import { Vehicle } from "../modules/vehicles/entities/vehicle.entity";
 
-validateEnv(process.env);
+validateDatabaseEnv(process.env);
 
 export default new DataSource({
   type: "mssql",
@@ -14,7 +15,7 @@ export default new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  entities: [User, Model, Vehicle],
+  entities: [User, Brand, Model, Vehicle],
   migrations: ["src/database/migrations/*.ts"],
   synchronize: false,
   options: {

@@ -8,24 +8,16 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Brand } from "../../brands/entities/brand.entity";
+import { Model } from "../../models/entities/model.entity";
 import { User } from "../../users/entities/user.entity";
-import { Vehicle } from "../../vehicles/entities/vehicle.entity";
 
-@Entity("models")
-export class Model {
+@Entity("brands")
+export class Brand {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ name: "name", type: "nvarchar", length: 120 })
+  @Column({ name: "name", type: "nvarchar", length: 120, unique: true })
   name!: string;
-
-  @Column({ name: "brand_id", type: "int" })
-  brandId!: number;
-
-  @ManyToOne(() => Brand, (brand) => brand.models, { nullable: false })
-  @JoinColumn({ name: "brand_id" })
-  brand!: Brand;
 
   @Column({ name: "created_by", type: "int" })
   createdBy!: number;
@@ -34,8 +26,8 @@ export class Model {
   @JoinColumn({ name: "created_by" })
   creator!: User;
 
-  @OneToMany(() => Vehicle, (vehicle) => vehicle.model)
-  vehicles!: Vehicle[];
+  @OneToMany(() => Model, (model) => model.brand)
+  models!: Model[];
 
   @CreateDateColumn({
     name: "created_at",
