@@ -233,23 +233,30 @@ O cache Redis foi implementado somente para `vehicles`.
 
 ## Auditoria com RabbitMQ + MongoDB
 
-Quando um veículo é criado, atualizado ou removido:
-
-1. o `VehiclesService` chama o `AuditPublisherService`
-2. o `AuditPublisherService` publica um evento no RabbitMQ
-3. o `AuditConsumer` consome a fila `audit.events`
-4. o `AuditService` salva o log na collection `audit_logs` do MongoDB
-
-Essa auditoria cobre somente os eventos de `vehicles`:
+A auditoria foi implementada de forma assíncrona para os eventos principais de `vehicles`:
 
 - `vehicle.created`
 - `vehicle.updated`
 - `vehicle.deleted`
 
-Leitura de auditoria:
+Fluxo:
+
+`VehiclesService -> AuditPublisherService -> RabbitMQ -> AuditConsumer -> AuditService -> MongoDB`
+
+Quando um evento é processado com sucesso, ele é salvo no MongoDB na collection `audit_logs` e pode ser consultado pelos endpoints protegidos:
 
 - `GET /audit`
 - `GET /audit/:id`
+
+Esses endpoints exibem os logs de auditoria de negócio, ou seja, ações realizadas em `vehicles`.
+
+Erros técnicos relacionados à mensageria ou à persistência da auditoria, como falha ao publicar no RabbitMQ, falha no consumer ou erro ao salvar no MongoDB, são registrados nos logs da aplicação via `Logger` do NestJS.
+
+Para acompanhar os logs técnicos da aplicação:
+
+```bash
+make logs
+```
 
 As rotas de auditoria também exigem JWT.
 
