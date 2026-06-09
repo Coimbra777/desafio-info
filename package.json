@@ -35,7 +35,6 @@
     "class-validator": "^0.14.2",
     "dotenv": "^16.4.7",
     "ioredis": "^5.11.1",
-    "joi": "^17.13.3",
     "mongodb": "^6.21.0",
     "mssql": "^11.0.1",
     "passport": "^0.7.0",

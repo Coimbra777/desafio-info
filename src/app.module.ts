@@ -1,7 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { validateEnv } from "./config/validation.config";
 import { AuditModule } from "./modules/audit/audit.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { BrandsModule } from "./modules/brands/brands.module";
@@ -15,7 +14,6 @@ import { VehiclesModule } from "./modules/vehicles/vehicles.module";
       isGlobal: true,
       cache: true,
       envFilePath: ".env",
-      validate: validateEnv,
     }),
 
     TypeOrmModule.forRootAsync({
@@ -23,15 +21,15 @@ import { VehiclesModule } from "./modules/vehicles/vehicles.module";
       useFactory: (configService: ConfigService) => ({
         type: "mssql",
         host: configService.getOrThrow<string>("DB_HOST"),
-        port: configService.getOrThrow<number>("DB_PORT"),
+        port: Number(configService.getOrThrow<string>("DB_PORT")),
         username: configService.getOrThrow<string>("DB_USERNAME"),
         password: configService.getOrThrow<string>("DB_PASSWORD"),
         database: configService.getOrThrow<string>("DB_DATABASE"),
         options: {
-          encrypt: configService.getOrThrow<boolean>("DB_ENCRYPT"),
-          trustServerCertificate: configService.getOrThrow<boolean>(
-            "DB_TRUST_SERVER_CERTIFICATE",
-          ),
+          encrypt: configService.getOrThrow<string>("DB_ENCRYPT") === "true",
+          trustServerCertificate:
+            configService.getOrThrow<string>("DB_TRUST_SERVER_CERTIFICATE") ===
+            "true",
         },
         autoLoadEntities: true,
         synchronize: false,

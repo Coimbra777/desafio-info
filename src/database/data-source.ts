@@ -1,12 +1,9 @@
 import "dotenv/config";
 import { DataSource } from "typeorm";
-import { validateDatabaseEnv } from "../config/validation.config";
 import { Brand } from "../modules/brands/entities/brand.entity";
 import { Model } from "../modules/models/entities/model.entity";
 import { User } from "../modules/users/entities/user.entity";
 import { Vehicle } from "../modules/vehicles/entities/vehicle.entity";
-
-validateDatabaseEnv(process.env);
 
 export default new DataSource({
   type: "mssql",

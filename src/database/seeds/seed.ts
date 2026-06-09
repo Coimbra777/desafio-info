@@ -1,21 +1,30 @@
 import "dotenv/config";
 import * as bcrypt from "bcrypt";
-import { validateSeedEnv } from "../../config/validation.config";
 import dataSource from "../data-source";
 import { User } from "../../modules/users/entities/user.entity";
 
+function getRequiredEnv(
+  name: "SEED_AIVACOL_EMAIL" | "SEED_AIVACOL_PASSWORD",
+): string {
+  const value = process.env[name];
+
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+
+  return value;
+}
+
 async function runSeeds(): Promise<void> {
-  validateSeedEnv(process.env);
+  const seedEmail = getRequiredEnv("SEED_AIVACOL_EMAIL");
+  const seedPassword = getRequiredEnv("SEED_AIVACOL_PASSWORD");
 
   await dataSource.initialize();
 
   try {
     const userRepository = dataSource.getRepository(User);
     const existingUser = await userRepository.findOne({
-      where: [
-        { nickname: 'aivacol' },
-        { email: process.env.SEED_AIVACOL_EMAIL as string },
-      ],
+      where: [{ nickname: "aivacol" }, { email: seedEmail }],
     });
 
     if (existingUser) {
@@ -23,15 +32,12 @@ async function runSeeds(): Promise<void> {
       return;
     }
 
-    const passwordHash = await bcrypt.hash(
-      process.env.SEED_AIVACOL_PASSWORD as string,
-      10,
-    );
+    const passwordHash = await bcrypt.hash(seedPassword, 10);
 
     const user = userRepository.create({
       nickname: "aivacol",
       name: "Aivacol",
-      email: process.env.SEED_AIVACOL_EMAIL as string,
+      email: seedEmail,
       passwordHash,
     });
 
