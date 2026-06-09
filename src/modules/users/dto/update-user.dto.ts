@@ -1,19 +1,36 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { Transform } from "class-transformer";
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from "class-validator";
 
 export class UpdateUserDto {
+  @Transform(({ value }) => (typeof value === "string" ? value.trim() : value))
   @IsString()
-  @IsOptional()
-  nickname?: string;
-
-  @IsString()
-  @IsOptional()
-  name?: string;
-
-  @IsEmail()
-  @IsOptional()
-  email?: string;
-
   @IsOptional()
   @IsNotEmpty()
-  password?: unknown;
+  nickname?: string;
+
+  @Transform(({ value }) => (typeof value === "string" ? value.trim() : value))
+  @IsString()
+  @IsOptional()
+  @IsNotEmpty()
+  name?: string;
+
+  @Transform(({ value }) =>
+    typeof value === "string" ? value.trim().toLowerCase() : value,
+  )
+  @IsEmail()
+  @IsOptional()
+  @IsNotEmpty()
+  email?: string;
+
+  @IsString()
+  @IsOptional()
+  @IsNotEmpty()
+  @MinLength(8)
+  password?: string;
 }

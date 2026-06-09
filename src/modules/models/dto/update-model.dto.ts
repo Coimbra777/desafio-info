@@ -1,5 +1,5 @@
 import { Transform, Type } from "class-transformer";
-import { IsInt, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsInt, IsNotEmpty, IsOptional, IsString, Min } from "class-validator";
 
 export class UpdateModelDto {
   @Transform(({ value }) => (typeof value === "string" ? value.trim() : value))
@@ -11,5 +11,6 @@ export class UpdateModelDto {
   @Type(() => Number)
   @IsOptional()
   @IsInt()
+  @Min(1)
   brandId?: number;
 }
