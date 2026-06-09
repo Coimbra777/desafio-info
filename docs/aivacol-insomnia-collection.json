@@ -1,0 +1,580 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-06-07T20:33:57.000Z",
+  "__export_source": "chatgpt",
+  "resources": [
+    {
+      "_id": "__WORKSPACE_acc4f2f9bb31__",
+      "parentId": null,
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "name": "Aivacol Fleet Management API",
+      "description": "Collection para testar Auth, Users, Models e Vehicles do desafio backend.",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "__ENV_2a86077e8802__",
+      "parentId": "__WORKSPACE_acc4f2f9bb31__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:3000",
+        "token": "COLE_O_TOKEN_AQUI",
+        "user_id": "1",
+        "model_id": "1",
+        "vehicle_id": "1"
+      },
+      "dataPropertyOrder": {
+        "&": ["base_url", "token", "user_id", "model_id", "vehicle_id"]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1780864437546,
+      "_type": "environment"
+    },
+    {
+      "_id": "__FOLDER_30829f502f96__",
+      "parentId": "__WORKSPACE_acc4f2f9bb31__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "name": "Auth",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1780864437546,
+      "_type": "request_group"
+    },
+    {
+      "_id": "__FOLDER_b2da5a8a0caa__",
+      "parentId": "__WORKSPACE_acc4f2f9bb31__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "name": "Users",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1780864437546,
+      "_type": "request_group"
+    },
+    {
+      "_id": "__FOLDER_67eb0706da60__",
+      "parentId": "__WORKSPACE_acc4f2f9bb31__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "name": "Models",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1780864437546,
+      "_type": "request_group"
+    },
+    {
+      "_id": "__FOLDER_4591026b5ecd__",
+      "parentId": "__WORKSPACE_acc4f2f9bb31__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "name": "Vehicles",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1780864437546,
+      "_type": "request_group"
+    },
+    {
+      "_id": "__REQ_63afa4ace563__",
+      "parentId": "__FOLDER_30829f502f96__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "url": "{{ _.base_url }}/auth/login",
+      "name": "Login",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"aivacol@example.com\",\n  \"password\": \"ChangeMe123!\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1780864437546,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "__REQ_1c18f4ca301f__",
+      "parentId": "__FOLDER_b2da5a8a0caa__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "url": "{{ _.base_url }}/users",
+      "name": "Create User",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nickname\": \"john\",\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"12345678\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1780864437546,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "__REQ_40c74b45139f__",
+      "parentId": "__FOLDER_b2da5a8a0caa__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "url": "{{ _.base_url }}/users",
+      "name": "List Users",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1780864437546,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "__REQ_c6858a307326__",
+      "parentId": "__FOLDER_b2da5a8a0caa__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "url": "{{ _.base_url }}/users/{{ _.user_id }}",
+      "name": "Get User by ID",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1780864437546,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "__REQ_a1259fb28531__",
+      "parentId": "__FOLDER_b2da5a8a0caa__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "url": "{{ _.base_url }}/users/{{ _.user_id }}",
+      "name": "Update User",
+      "description": "",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"John Updated\",\n  \"email\": \"john.updated@example.com\",\n  \"password\": \"newpass123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1780864437546,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "__REQ_b3c161c70bac__",
+      "parentId": "__FOLDER_b2da5a8a0caa__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "url": "{{ _.base_url }}/users/{{ _.user_id }}",
+      "name": "Delete User",
+      "description": "",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1780864437546,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "__REQ_8f9c73b7c1c2__",
+      "parentId": "__FOLDER_67eb0706da60__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "url": "{{ _.base_url }}/models",
+      "name": "Create Model",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Corolla\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1780864437546,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "__REQ_4d625c06ffff__",
+      "parentId": "__FOLDER_67eb0706da60__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "url": "{{ _.base_url }}/models",
+      "name": "List Models",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1780864437546,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "__REQ_59a8944a70f0__",
+      "parentId": "__FOLDER_67eb0706da60__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "url": "{{ _.base_url }}/models/{{ _.model_id }}",
+      "name": "Get Model by ID",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1780864437546,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "__REQ_b19759d4ec80__",
+      "parentId": "__FOLDER_67eb0706da60__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "url": "{{ _.base_url }}/models/{{ _.model_id }}",
+      "name": "Update Model",
+      "description": "",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Corolla Cross\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1780864437546,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "__REQ_de7943537713__",
+      "parentId": "__FOLDER_67eb0706da60__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "url": "{{ _.base_url }}/models/{{ _.model_id }}",
+      "name": "Delete Model",
+      "description": "",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1780864437546,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "__REQ_7359b3d45f05__",
+      "parentId": "__FOLDER_4591026b5ecd__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "url": "{{ _.base_url }}/vehicles",
+      "name": "Create Vehicle",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"licensePlate\": \"ABC1234\",\n  \"chassis\": \"9BWZZZ377VT004251\",\n  \"renavam\": \"12345678901\",\n  \"year\": 2024\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1780864437546,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "__REQ_577fdf8407b2__",
+      "parentId": "__FOLDER_4591026b5ecd__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "url": "{{ _.base_url }}/vehicles",
+      "name": "List Vehicles",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1780864437546,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "__REQ_15e8171e8332__",
+      "parentId": "__FOLDER_4591026b5ecd__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "url": "{{ _.base_url }}/vehicles/{{ _.vehicle_id }}",
+      "name": "Get Vehicle by ID",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1780864437546,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "__REQ_3f450621738e__",
+      "parentId": "__FOLDER_4591026b5ecd__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "url": "{{ _.base_url }}/vehicles/{{ _.vehicle_id }}",
+      "name": "Update Vehicle",
+      "description": "",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"licensePlate\": \"XYZ9876\",\n  \"year\": 2025\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1780864437546,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "__REQ_03e9a613ce40__",
+      "parentId": "__FOLDER_4591026b5ecd__",
+      "modified": 1780864437546,
+      "created": 1780864437546,
+      "url": "{{ _.base_url }}/vehicles/{{ _.vehicle_id }}",
+      "name": "Delete Vehicle",
+      "description": "",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1780864437546,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    }
+  ]
+}
