@@ -23,23 +23,27 @@ export class VehiclesCacheService implements OnModuleDestroy {
     });
   }
 
-  async getList(): Promise<Vehicle[] | null> {
-    const cachedValue = await this.redis.get(this.listKey);
+  async getList(page: number, limit: number): Promise<unknown | null> {
+    const cachedValue = await this.redis.get(this.getListKey(page, limit));
 
     if (!cachedValue) {
       return null;
     }
 
-    return JSON.parse(cachedValue) as Vehicle[];
+    return JSON.parse(cachedValue);
   }
 
-  async setList(vehicles: Vehicle[]): Promise<void> {
+  async setList(page: number, limit: number, value: unknown): Promise<void> {
     await this.redis.set(
-      this.listKey,
-      JSON.stringify(vehicles),
+      this.getListKey(page, limit),
+      JSON.stringify(value),
       "EX",
       this.ttl,
     );
+  }
+
+  private getListKey(page: number, limit: number): string {
+    return `${this.listKey}:page:${page}:limit:${limit}`;
   }
 
   async invalidateList(): Promise<void> {

@@ -52,8 +52,11 @@ export class VehiclesService {
   }
 
   async findAll(page = 1, limit = 20) {
-    const safePage = Math.max(page, 1);
-    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    const cachedVehicles = await this.vehiclesCacheService.getList(page, limit);
+
+    if (cachedVehicles) {
+      return cachedVehicles;
+    }
 
     const [data, total] = await this.vehiclesRepository.findAndCount({
       relations: {
@@ -62,19 +65,23 @@ export class VehiclesService {
       order: {
         createdAt: "ASC",
       },
-      skip: (safePage - 1) * safeLimit,
-      take: safeLimit,
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
-    return {
+    const result = {
       data,
       meta: {
-        page: safePage,
-        limit: safeLimit,
+        page,
+        limit,
         total,
-        totalPages: Math.ceil(total / safeLimit),
+        totalPages: Math.ceil(total / limit),
       },
     };
+
+    await this.vehiclesCacheService.setList(page, limit, result);
+
+    return result;
   }
 
   async findOne(id: number): Promise<Vehicle> {
