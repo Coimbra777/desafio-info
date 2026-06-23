@@ -51,25 +51,30 @@ export class VehiclesService {
     return this.findOne(savedVehicle.id);
   }
 
-  async findAll(): Promise<Vehicle[]> {
-    const cachedVehicles = await this.vehiclesCacheService.getList();
+  async findAll(page = 1, limit = 20) {
+    const safePage = Math.max(page, 1);
+    const safeLimit = Math.min(Math.max(limit, 1), 100);
 
-    if (cachedVehicles) {
-      return cachedVehicles;
-    }
-
-    const vehicles = await this.vehiclesRepository.find({
+    const [data, total] = await this.vehiclesRepository.findAndCount({
       relations: {
         model: true,
       },
       order: {
         createdAt: "ASC",
       },
+      skip: (safePage - 1) * safeLimit,
+      take: safeLimit,
     });
 
-    await this.vehiclesCacheService.setList(vehicles);
-
-    return vehicles;
+    return {
+      data,
+      meta: {
+        page: safePage,
+        limit: safeLimit,
+        total,
+        totalPages: Math.ceil(total / safeLimit),
+      },
+    };
   }
 
   async findOne(id: number): Promise<Vehicle> {

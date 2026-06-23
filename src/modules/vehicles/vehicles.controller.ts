@@ -15,6 +15,7 @@ import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CreateVehicleDto } from "./dto/create-vehicle.dto";
 import { UpdateVehicleDto } from "./dto/update-vehicle.dto";
 import { VehiclesService } from "./vehicles.service";
+import { Query } from "@nestjs/common";
 
 @UseGuards(JwtAuthGuard)
 @Controller("vehicles")
@@ -30,8 +31,8 @@ export class VehiclesController {
   }
 
   @Get()
-  findAll() {
-    return this.vehiclesService.findAll();
+  findAll(@Query("page") page = "1", @Query("limit") limit = "20") {
+    return this.vehiclesService.findAll(Number(page), Number(limit));
   }
 
   @Get(":id")

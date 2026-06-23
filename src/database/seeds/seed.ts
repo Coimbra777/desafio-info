@@ -1,7 +1,6 @@
 import "dotenv/config";
-import * as bcrypt from "bcrypt";
 import dataSource from "../data-source";
-import { User } from "../../modules/users/entities/user.entity";
+import { ensureSeedUser } from "./users.seed";
 
 function getRequiredEnv(
   name: "SEED_AIVACOL_EMAIL" | "SEED_AIVACOL_PASSWORD",
@@ -15,38 +14,28 @@ function getRequiredEnv(
   return value;
 }
 
-async function runSeeds(): Promise<void> {
+async function runSeedUser(): Promise<void> {
   const seedEmail = getRequiredEnv("SEED_AIVACOL_EMAIL");
   const seedPassword = getRequiredEnv("SEED_AIVACOL_PASSWORD");
 
   await dataSource.initialize();
 
   try {
-    const userRepository = dataSource.getRepository(User);
-    const existingUser = await userRepository.findOne({
-      where: [{ nickname: "aivacol" }, { email: seedEmail }],
-    });
-
-    if (existingUser) {
-      process.stdout.write('Seed skipped: user "aivacol" already exists.\n');
-      return;
-    }
-
-    const passwordHash = await bcrypt.hash(seedPassword, 10);
-
-    const user = userRepository.create({
+    const { created } = await ensureSeedUser(dataSource, {
       nickname: "aivacol",
       name: "Aivacol",
       email: seedEmail,
-      passwordHash,
+      password: seedPassword,
     });
 
-    await userRepository.save(user);
-
-    process.stdout.write('Seed completed: user "aivacol" created.\n');
+    process.stdout.write(
+      created
+        ? 'Seed completed: user "aivacol" created.\n'
+        : 'Seed skipped: user "aivacol" already exists.\n',
+    );
   } finally {
     await dataSource.destroy();
   }
 }
 
-void runSeeds();
+void runSeedUser();

@@ -2,13 +2,13 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import * as bcrypt from 'bcrypt';
-import { Repository } from 'typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import * as bcrypt from "bcrypt";
+import { Repository } from "typeorm";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { User } from "./entities/user.entity";
 
 @Injectable()
 export class UsersService {
@@ -44,7 +44,7 @@ export class UsersService {
   async findAll() {
     const users = await this.usersRepository.find({
       order: {
-        createdAt: 'ASC',
+        createdAt: "ASC",
       },
     });
 
@@ -55,7 +55,7 @@ export class UsersService {
     const user = await this.findById(id);
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException("User not found");
     }
 
     return this.toResponse(user);
@@ -83,7 +83,7 @@ export class UsersService {
     const user = await this.findById(id);
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException("User not found");
     }
 
     if (updateUserDto.nickname && updateUserDto.nickname !== user.nickname) {
@@ -116,7 +116,7 @@ export class UsersService {
     const user = await this.findById(id);
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException("User not found");
     }
 
     await this.usersRepository.remove(user);
