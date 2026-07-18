@@ -1,4 +1,4 @@
-.PHONY: up down reset logs ps database migrate seed setup build test test-e2e test-all clean
+.PHONY: up down reset logs ps database migrate seed seed-demo setup build test test-e2e test-all clean
 
 up:
 	docker compose up -d --build
@@ -23,6 +23,9 @@ migrate:
 
 seed:
 	docker compose exec api npm run seed
+
+seed-demo:
+	docker compose exec api npm run seed:demo
 
 setup: up database migrate seed
 

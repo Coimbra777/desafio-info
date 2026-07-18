@@ -320,6 +320,26 @@ make seed                                              # usuário aivacol
 docker compose exec api npm run seed:performance -- 10000 50000
 ```
 
+### Seed de demonstração — [demo.seed.ts](../src/database/seeds/demo.seed.ts)
+
+Dados **fake realistas e variados** via `@faker-js/faker`, para demo/dev e para tornar a
+paginação visualmente significativa (feature [003](../specs/003-fake-seeds/spec.md)):
+
+- Popula os 4 módulos: usuários, marcas, modelos (distribuídos entre marcas) e veículos
+  (distribuídos entre modelos em round-robin).
+- **Determinístico** (`DEMO_SEED`, default 1337) e **idempotente** (rodar 2× não duplica).
+- Namespace próprio (`demo-user-`, emails `@demo.aivacol.dev`, placas `DEMO…`) — não colide
+  com o namespace `perf-` do seed de performance.
+- Geradores puros em [fake/factories.ts](../src/database/seeds/fake/factories.ts), testados
+  para determinismo e unicidade de chaves.
+
+```bash
+make seed                              # garante o usuário aivacol (createdBy)
+make seed-demo                         # defaults: 20 users, 8 brands, 4 models/brand, 120 vehicles
+# ou com quantidades customizadas:
+docker compose exec api npm run seed:demo -- 50 12 5 300
+```
+
 ---
 
 ## 9. Referência de endpoints
@@ -431,6 +451,8 @@ O contrato completo é gerado automaticamente via OpenAPI 3 (`@nestjs/swagger`):
 | `MONGODB_URI`               | Conexão MongoDB da auditoria                         |
 | `SEED_AIVACOL_EMAIL/PASSWORD` | Credenciais do usuário criado no seed inicial     |
 | `SWAGGER_ENABLED`           | Expõe a UI Swagger em `/api/swagger` (`false` desabilita) |
+| `DB_POOL_MAX` / `DB_POOL_MIN` | Tamanho do pool de conexões do SQL Server           |
+| `DEMO_SEED`                 | Semente do seed de demonstração (dados fake determinísticos) |
 
 Variáveis de banco e cache usam `getOrThrow`: **a aplicação não sobe se faltarem**. As de
 mensageria/Mongo são opcionais (degradação graciosa com warning).
