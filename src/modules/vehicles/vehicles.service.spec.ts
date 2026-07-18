@@ -1,5 +1,6 @@
 import { NotFoundException } from "@nestjs/common";
 import { Repository } from "typeorm";
+import { paginate } from "../../common/pagination/paginate";
 import { AuditPublisherService } from "../audit/audit-publisher.service";
 import { Brand } from "../brands/entities/brand.entity";
 import { Model } from "../models/entities/model.entity";
@@ -10,7 +11,10 @@ import { VehiclesService } from "./vehicles.service";
 describe("VehiclesService", () => {
   let vehiclesService: VehiclesService;
   let vehiclesRepository: jest.Mocked<
-    Pick<Repository<Vehicle>, "create" | "find" | "findOne" | "save" | "remove">
+    Pick<
+      Repository<Vehicle>,
+      "create" | "findAndCount" | "findOne" | "save" | "remove"
+    >
   >;
   let modelsRepository: jest.Mocked<Pick<Repository<Model>, "findOne">>;
   let vehiclesCacheService: jest.Mocked<
@@ -31,7 +35,7 @@ describe("VehiclesService", () => {
   beforeEach(() => {
     vehiclesRepository = {
       create: jest.fn(),
-      find: jest.fn(),
+      findAndCount: jest.fn(),
       findOne: jest.fn(),
       save: jest.fn(),
       remove: jest.fn(),
@@ -66,36 +70,44 @@ describe("VehiclesService", () => {
     jest.clearAllMocks();
   });
 
-  it("returns cached list without querying repository", async () => {
-    const cachedVehicles = [createVehicle()];
+  it("returns cached paginated list without querying repository", async () => {
+    const cachedList = paginate([createVehicle()], 1, 1, 20);
 
-    vehiclesCacheService.getList.mockResolvedValue(cachedVehicles);
+    vehiclesCacheService.getList.mockResolvedValue(cachedList);
 
-    const result = await vehiclesService.findAll();
+    const result = await vehiclesService.findAll(1, 20);
 
-    expect(result).toEqual(cachedVehicles);
-    expect(vehiclesRepository.find).not.toHaveBeenCalled();
+    expect(result).toEqual(cachedList);
+    expect(vehiclesCacheService.getList).toHaveBeenCalledWith(1, 20);
+    expect(vehiclesRepository.findAndCount).not.toHaveBeenCalled();
     expect(vehiclesCacheService.setList).not.toHaveBeenCalled();
   });
 
-  it("queries repository, caches and returns list when cache is empty", async () => {
+  it("queries repository, caches and returns paginated list when cache is empty", async () => {
     const vehicles = [createVehicle()];
 
     vehiclesCacheService.getList.mockResolvedValue(null);
-    vehiclesRepository.find.mockResolvedValue(vehicles);
+    vehiclesRepository.findAndCount.mockResolvedValue([vehicles, 1]);
 
-    const result = await vehiclesService.findAll();
+    const result = await vehiclesService.findAll(1, 20);
 
-    expect(result).toEqual(vehicles);
-    expect(vehiclesRepository.find).toHaveBeenCalledWith({
+    expect(result).toEqual(paginate(vehicles, 1, 1, 20));
+    expect(vehiclesRepository.findAndCount).toHaveBeenCalledWith({
       relations: {
         model: true,
       },
       order: {
         createdAt: "ASC",
+        id: "ASC",
       },
+      skip: 0,
+      take: 20,
     });
-    expect(vehiclesCacheService.setList).toHaveBeenCalledWith(vehicles);
+    expect(vehiclesCacheService.setList).toHaveBeenCalledWith(
+      1,
+      20,
+      paginate(vehicles, 1, 1, 20),
+    );
   });
 
   it("returns cached detail without querying repository", async () => {

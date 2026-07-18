@@ -1,6 +1,8 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { PaginatedDto } from "../../common/pagination/paginated.dto";
+import { paginate } from "../../common/pagination/paginate";
 import { Brand } from "../brands/entities/brand.entity";
 import { Vehicle } from "../vehicles/entities/vehicle.entity";
 import { CreateModelDto } from "./dto/create-model.dto";
@@ -30,15 +32,20 @@ export class ModelsService {
     return this.modelsRepository.save(model);
   }
 
-  findAll(): Promise<Model[]> {
-    return this.modelsRepository.find({
+  async findAll(page: number, limit: number): Promise<PaginatedDto<Model>> {
+    const [models, total] = await this.modelsRepository.findAndCount({
       relations: {
         brand: true,
       },
       order: {
         createdAt: "ASC",
+        id: "ASC",
       },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return paginate(models, total, page, limit);
   }
 
   async findOne(id: number): Promise<Model> {

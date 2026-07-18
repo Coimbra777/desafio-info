@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
+import { paginate } from '../../common/pagination/paginate';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -41,14 +42,22 @@ export class UsersService {
     return this.toResponse(savedUser);
   }
 
-  async findAll() {
-    const users = await this.usersRepository.find({
+  async findAll(page: number, limit: number) {
+    const [users, total] = await this.usersRepository.findAndCount({
       order: {
         createdAt: 'ASC',
+        id: 'ASC',
       },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
-    return users.map((user) => this.toResponse(user));
+    return paginate(
+      users.map((user) => this.toResponse(user)),
+      total,
+      page,
+      limit,
+    );
   }
 
   async findOne(id: number) {

@@ -18,15 +18,25 @@ describe("AuditController", () => {
     jest.clearAllMocks();
   });
 
-  it("calls findAll on AuditService", async () => {
-    const logs = [{ id: "507f1f77bcf86cd799439011", event: "vehicle.created" }];
+  it("calls findAll on AuditService with pagination", async () => {
+    const paginated = {
+      data: [{ id: "507f1f77bcf86cd799439011", event: "vehicle.created" }],
+      meta: {
+        page: 1,
+        limit: 20,
+        total: 1,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+    };
 
-    auditService.findAll.mockResolvedValue(logs as never);
+    auditService.findAll.mockResolvedValue(paginated as never);
 
-    const result = await auditController.findAll();
+    const result = await auditController.findAll({ page: 1, limit: 20 } as never);
 
-    expect(auditService.findAll).toHaveBeenCalledTimes(1);
-    expect(result).toEqual(logs);
+    expect(auditService.findAll).toHaveBeenCalledWith(1, 20);
+    expect(result).toEqual(paginated);
   });
 
   it("calls findOne on AuditService", async () => {

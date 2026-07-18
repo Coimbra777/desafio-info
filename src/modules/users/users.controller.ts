@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -21,6 +22,8 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { ApiPaginatedResponse } from "../../common/pagination/api-paginated-response.decorator";
+import { PaginationQueryDto } from "../../common/pagination/pagination-query.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -44,10 +47,10 @@ export class UsersController {
   }
 
   @Get()
-  @ApiOperation({ summary: "Lista os usuários" })
-  @ApiOkResponse({ type: UserResponseDto, isArray: true })
-  findAll() {
-    return this.usersService.findAll();
+  @ApiOperation({ summary: "Lista os usuários (paginado)" })
+  @ApiPaginatedResponse(UserResponseDto)
+  findAll(@Query() query: PaginationQueryDto) {
+    return this.usersService.findAll(query.page, query.limit);
   }
 
   @Get(":id")

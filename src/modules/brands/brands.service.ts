@@ -5,6 +5,8 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { PaginatedDto } from "../../common/pagination/paginated.dto";
+import { paginate } from "../../common/pagination/paginate";
 import { Model } from "../models/entities/model.entity";
 import { CreateBrandDto } from "./dto/create-brand.dto";
 import { UpdateBrandDto } from "./dto/update-brand.dto";
@@ -30,12 +32,17 @@ export class BrandsService {
     return this.brandsRepository.save(brand);
   }
 
-  findAll(): Promise<Brand[]> {
-    return this.brandsRepository.find({
+  async findAll(page: number, limit: number): Promise<PaginatedDto<Brand>> {
+    const [brands, total] = await this.brandsRepository.findAndCount({
       order: {
         createdAt: "ASC",
+        id: "ASC",
       },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return paginate(brands, total, page, limit);
   }
 
   async findOne(id: number): Promise<Brand> {

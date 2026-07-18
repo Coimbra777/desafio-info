@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Request,
   UseGuards,
 } from "@nestjs/common";
@@ -23,6 +24,8 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { ApiPaginatedResponse } from "../../common/pagination/api-paginated-response.decorator";
+import { PaginationQueryDto } from "../../common/pagination/pagination-query.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CreateVehicleDto } from "./dto/create-vehicle.dto";
 import { UpdateVehicleDto } from "./dto/update-vehicle.dto";
@@ -54,10 +57,10 @@ export class VehiclesController {
   }
 
   @Get()
-  @ApiOperation({ summary: "Lista os veículos (com cache Redis)" })
-  @ApiOkResponse({ type: Vehicle, isArray: true })
-  findAll() {
-    return this.vehiclesService.findAll();
+  @ApiOperation({ summary: "Lista os veículos, paginado (com cache Redis)" })
+  @ApiPaginatedResponse(Vehicle)
+  findAll(@Query() query: PaginationQueryDto) {
+    return this.vehiclesService.findAll(query.page, query.limit);
   }
 
   @Get(":id")

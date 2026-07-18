@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Request,
   UseGuards,
 } from "@nestjs/common";
@@ -22,6 +23,8 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { ApiPaginatedResponse } from "../../common/pagination/api-paginated-response.decorator";
+import { PaginationQueryDto } from "../../common/pagination/pagination-query.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CreateModelDto } from "./dto/create-model.dto";
 import { UpdateModelDto } from "./dto/update-model.dto";
@@ -48,10 +51,10 @@ export class ModelsController {
   }
 
   @Get()
-  @ApiOperation({ summary: "Lista os modelos (com a marca)" })
-  @ApiOkResponse({ type: Model, isArray: true })
-  findAll() {
-    return this.modelsService.findAll();
+  @ApiOperation({ summary: "Lista os modelos com a marca (paginado)" })
+  @ApiPaginatedResponse(Model)
+  findAll(@Query() query: PaginationQueryDto) {
+    return this.modelsService.findAll(query.page, query.limit);
   }
 
   @Get(":id")

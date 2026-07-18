@@ -31,6 +31,10 @@ import { VehiclesModule } from "./modules/vehicles/vehicles.module";
             configService.getOrThrow<string>("DB_TRUST_SERVER_CERTIFICATE") ===
             "true",
         },
+        pool: {
+          max: Number(configService.get<string>("DB_POOL_MAX") ?? "20"),
+          min: Number(configService.get<string>("DB_POOL_MIN") ?? "2"),
+        },
         autoLoadEntities: true,
         synchronize: false,
         migrationsRun: false,

@@ -8,6 +8,8 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Collection, Document, MongoClient, ObjectId, WithId } from "mongodb";
+import { PaginatedDto } from "../../common/pagination/paginated.dto";
+import { paginate } from "../../common/pagination/paginate";
 import { AuditEvent, AuditLogResponse } from "./audit-event.type";
 
 @Injectable()
@@ -62,21 +64,31 @@ export class AuditService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async findAll(): Promise<AuditLogResponse[]> {
+  async findAll(
+    page: number,
+    limit: number,
+  ): Promise<PaginatedDto<AuditLogResponse>> {
     if (!this.collection) {
       this.logger.warn(
         "MongoDB collection is not available. Returning empty audit log list.",
       );
-      return [];
+      return paginate<AuditLogResponse>([], 0, page, limit);
     }
 
+    const total = await this.collection.countDocuments();
     const auditLogs = await this.collection
       .find({})
       .sort({ createdAt: -1 })
-      .limit(50)
+      .skip((page - 1) * limit)
+      .limit(limit)
       .toArray();
 
-    return auditLogs.map((auditLog) => this.mapAuditLog(auditLog));
+    return paginate(
+      auditLogs.map((auditLog) => this.mapAuditLog(auditLog)),
+      total,
+      page,
+      limit,
+    );
   }
 
   async findOne(id: string): Promise<AuditLogResponse> {

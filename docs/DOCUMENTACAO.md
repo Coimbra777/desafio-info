@@ -241,14 +241,15 @@ Efeitos colaterais de cada operação de escrita:
 
 Implementado em [vehicles-cache.service.ts](../src/modules/vehicles/vehicles-cache.service.ts).
 
-- **Chaves**:
-  - `vehicles:list` → resultado de `GET /vehicles`
+- **Chaves** (paginadas por versão a partir da feature 002):
+  - `vehicles:list:v{version}:p{page}:l{limit}` → uma página de `GET /vehicles`
+  - `vehicles:list:version` → contador de versão da listagem
   - `vehicles:detail:{id}` → resultado de `GET /vehicles/:id`
 - **TTL**: definido por `VEHICLES_CACHE_TTL` (segundos; ex.: 60).
 - **Estratégia cache-aside**: nas leituras, tenta o cache; em _miss_, busca no banco e
   grava no cache com `EX ttl`.
-- **Invalidação**: escritas apagam as chaves afetadas conforme a tabela da seção 5.4,
-  garantindo consistência após create/update/delete.
+- **Invalidação**: escritas invalidam o detalhe (`DEL`) e **todas** as páginas de listagem
+  de uma vez via `INCR vehicles:list:version` (O(1); versões antigas expiram por TTL).
 - Conexão Redis com senha opcional (`REDIS_PASSWORD`) e seleção de DB (`REDIS_DB`);
   encerrada no `onModuleDestroy`.
 
@@ -350,6 +351,41 @@ Todas as rotas exigem `Authorization: Bearer <token>`, exceto o login.
 | DELETE | `/vehicles/:id`  | Remove veículo (204)         |  ✔   |
 | GET    | `/audit`         | Últimos 50 logs de auditoria |  ✔   |
 | GET    | `/audit/:id`     | Detalha log de auditoria     |  ✔   |
+
+### Paginação (todas as listagens)
+
+Todas as listagens (`GET /users`, `/brands`, `/models`, `/vehicles`, `/audit`) são
+paginadas com o mesmo contrato (feature [002](../specs/002-pagination-scale/spec.md)):
+
+- Query params: `?page` (inteiro ≥ 1, default 1) e `?limit` (inteiro ≥ 1, default 20,
+  **máx 100**). `limit` acima de 100 retorna **400** (não é cortado silenciosamente).
+- Envelope de resposta uniforme:
+
+```jsonc
+{
+  "data": [ /* itens da página */ ],
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 50000,
+    "totalPages": 2500,
+    "hasNextPage": true,
+    "hasPreviousPage": false
+  }
+}
+```
+
+- Ordenação estável por `(created_at ASC, id ASC)` — evita itens "pulando" entre páginas
+  sob alto volume.
+- `GET /:id` (detalhe) e escrita **não** mudam de shape.
+
+Suporte a escala (meta 50k+ por recurso):
+
+- Índices em `created_at` de todas as tabelas + `vehicles.model_id`
+  (migration `AddPaginationIndexes`).
+- Pool de conexões do SQL Server configurável por `DB_POOL_MAX`/`DB_POOL_MIN`.
+- Cache de `vehicles` por página, invalidado em O(1) via contador de versão
+  (`vehicles:list:version` incrementado a cada escrita).
 
 ### Convenção de códigos de erro
 

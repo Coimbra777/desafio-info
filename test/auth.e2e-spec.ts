@@ -40,21 +40,28 @@ describe("Auth e2e", () => {
     };
 
     modelsServiceMock = {
-      findAll: jest.fn(async () => []),
+      findAll: jest.fn(async (page: number, limit: number) =>
+        emptyPage(page, limit),
+      ),
       create: jest.fn(async (createModelDto, userId: number) =>
         createModel(createModelDto.name, createBrand(), userId),
       ),
     };
 
     vehiclesServiceMock = {
-      findAll: jest.fn(async () => []),
+      findAll: jest.fn(async (page: number, limit: number) =>
+        emptyPage(page, limit),
+      ),
       create: jest.fn(async (createVehicleDto, userId: number) =>
         createVehicle(createVehicleDto, userId),
       ),
     };
 
     auditServiceMock = {
-      findAll: jest.fn(async () => [createAuditLog()]),
+      findAll: jest.fn(async (page: number, limit: number) => ({
+        data: [createAuditLog()],
+        meta: pageMeta(page, limit, 1),
+      })),
       findOne: jest.fn(async (id: string) => createAuditLog(id)),
     };
 
@@ -148,7 +155,7 @@ describe("Auth e2e", () => {
       .set("Authorization", `Bearer ${accessToken}`);
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual([]);
+    expect(response.body).toEqual(emptyPage(1, 20));
   });
 
   it("GET /vehicles returns 401 without token", async () => {
@@ -163,7 +170,7 @@ describe("Auth e2e", () => {
       .set("Authorization", `Bearer ${accessToken}`);
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual([]);
+    expect(response.body).toEqual(emptyPage(1, 20));
   });
 
   it("GET /audit returns 401 without token", async () => {
@@ -178,7 +185,31 @@ describe("Auth e2e", () => {
       .set("Authorization", `Bearer ${accessToken}`);
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual([createAuditLog()]);
+    expect(response.body).toEqual({
+      data: [createAuditLog()],
+      meta: pageMeta(1, 20, 1),
+    });
+  });
+
+  it("GET /vehicles?limit above the cap returns 400", async () => {
+    const accessToken = await loginAndGetToken(app);
+
+    await createRequest(app)
+      .get("/vehicles?limit=1000")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .expect(400);
+  });
+
+  it("GET /vehicles forwards page and limit to the service", async () => {
+    const accessToken = await loginAndGetToken(app);
+
+    const response = await createRequest(app)
+      .get("/vehicles?page=3&limit=15")
+      .set("Authorization", `Bearer ${accessToken}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(emptyPage(3, 15));
+    expect(vehiclesServiceMock.findAll).toHaveBeenCalledWith(3, 15);
   });
 
   it("GET /audit/:id returns 200 with valid token", async () => {
@@ -293,6 +324,26 @@ describe("Auth e2e", () => {
     expect(response.body.message).toContain("modelId is required");
   });
 });
+
+function pageMeta(page: number, limit: number, total: number) {
+  const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
+
+  return {
+    page,
+    limit,
+    total,
+    totalPages,
+    hasNextPage: page < totalPages,
+    hasPreviousPage: page > 1 && total > 0,
+  };
+}
+
+function emptyPage(page: number, limit: number) {
+  return {
+    data: [],
+    meta: pageMeta(page, limit, 0),
+  };
+}
 
 function createUser(passwordHash: string): User {
   return {

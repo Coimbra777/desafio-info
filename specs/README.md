@@ -16,7 +16,7 @@
 | #   | Feature                        | Objetivo                                                                 | Status      |
 | --- | ------------------------------ | ------------------------------------------------------------------------ | ----------- |
 | 001 | OpenAPI / Swagger              | Documentar 100% do contrato da API com `@nestjs/swagger`; UI em `/api/swagger`. | ✅ Concluída |
-| 002 | Paginação & Escala (50k)       | Paginação em todas as listagens, índices, pool, cache list por página.   | ⏳ A specar  |
+| 002 | Paginação & Escala (50k)       | Paginação em todas as listagens, índices, pool, cache list por página.   | ✅ Concluída |
 | 003 | Seeds fake (todos os módulos)  | `@faker-js/faker`: users, brands, models, vehicles determinísticos.      | ⏳ A specar  |
 | 004 | Cobertura de testes            | Unit + e2e para todos os módulos, incluindo paginação e seeds.           | ⏳ A specar  |
 | 005 | Frontend React + Vite          | Painel: login, CRUD de todos os recursos, listas paginadas, auditoria.   | ⏳ A specar  |

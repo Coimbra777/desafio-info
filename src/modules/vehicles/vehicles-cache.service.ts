@@ -1,11 +1,12 @@
 import { Injectable, OnModuleDestroy } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import Redis from "ioredis";
+import { PaginatedDto } from "../../common/pagination/paginated.dto";
 import { Vehicle } from "./entities/vehicle.entity";
 
 @Injectable()
 export class VehiclesCacheService implements OnModuleDestroy {
-  private readonly listKey = "vehicles:list";
+  private readonly listVersionKey = "vehicles:list:version";
   private readonly ttl: number;
   private readonly redis: Redis;
 
@@ -23,27 +24,35 @@ export class VehiclesCacheService implements OnModuleDestroy {
     });
   }
 
-  async getList(): Promise<Vehicle[] | null> {
-    const cachedValue = await this.redis.get(this.listKey);
+  async getList(
+    page: number,
+    limit: number,
+  ): Promise<PaginatedDto<Vehicle> | null> {
+    const key = await this.getListKey(page, limit);
+    const cachedValue = await this.redis.get(key);
 
     if (!cachedValue) {
       return null;
     }
 
-    return JSON.parse(cachedValue) as Vehicle[];
+    return JSON.parse(cachedValue) as PaginatedDto<Vehicle>;
   }
 
-  async setList(vehicles: Vehicle[]): Promise<void> {
-    await this.redis.set(
-      this.listKey,
-      JSON.stringify(vehicles),
-      "EX",
-      this.ttl,
-    );
+  async setList(
+    page: number,
+    limit: number,
+    result: PaginatedDto<Vehicle>,
+  ): Promise<void> {
+    const key = await this.getListKey(page, limit);
+    await this.redis.set(key, JSON.stringify(result), "EX", this.ttl);
   }
 
+  /**
+   * Invalida TODAS as páginas de listagem em O(1) incrementando a versão.
+   * As chaves das versões anteriores expiram naturalmente pelo TTL.
+   */
   async invalidateList(): Promise<void> {
-    await this.redis.del(this.listKey);
+    await this.redis.incr(this.listVersionKey);
   }
 
   async getDetail(id: number): Promise<Vehicle | null> {
@@ -71,6 +80,16 @@ export class VehiclesCacheService implements OnModuleDestroy {
 
   async onModuleDestroy(): Promise<void> {
     await this.redis.quit();
+  }
+
+  private async getListVersion(): Promise<number> {
+    const version = await this.redis.get(this.listVersionKey);
+    return version ? Number(version) : 0;
+  }
+
+  private async getListKey(page: number, limit: number): Promise<string> {
+    const version = await this.getListVersion();
+    return `vehicles:list:v${version}:p${page}:l${limit}`;
   }
 
   private getDetailKey(id: number): string {

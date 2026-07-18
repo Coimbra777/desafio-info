@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Request,
   UseGuards,
 } from "@nestjs/common";
@@ -22,6 +23,8 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { ApiPaginatedResponse } from "../../common/pagination/api-paginated-response.decorator";
+import { PaginationQueryDto } from "../../common/pagination/pagination-query.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { BrandsService } from "./brands.service";
 import { CreateBrandDto } from "./dto/create-brand.dto";
@@ -48,10 +51,10 @@ export class BrandsController {
   }
 
   @Get()
-  @ApiOperation({ summary: "Lista as marcas" })
-  @ApiOkResponse({ type: Brand, isArray: true })
-  findAll() {
-    return this.brandsService.findAll();
+  @ApiOperation({ summary: "Lista as marcas (paginado)" })
+  @ApiPaginatedResponse(Brand)
+  findAll(@Query() query: PaginationQueryDto) {
+    return this.brandsService.findAll(query.page, query.limit);
   }
 
   @Get(":id")

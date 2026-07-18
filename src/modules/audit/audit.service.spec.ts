@@ -9,9 +9,11 @@ describe("AuditService", () => {
   let collection: {
     find: jest.Mock;
     findOne: jest.Mock;
+    countDocuments: jest.Mock;
   };
   let findCursor: {
     sort: jest.Mock;
+    skip: jest.Mock;
     limit: jest.Mock;
     toArray: jest.Mock;
   };
@@ -23,16 +25,19 @@ describe("AuditService", () => {
 
     findCursor = {
       sort: jest.fn(),
+      skip: jest.fn(),
       limit: jest.fn(),
       toArray: jest.fn(),
     };
 
     findCursor.sort.mockReturnValue(findCursor);
+    findCursor.skip.mockReturnValue(findCursor);
     findCursor.limit.mockReturnValue(findCursor);
 
     collection = {
       find: jest.fn().mockReturnValue(findCursor),
       findOne: jest.fn(),
+      countDocuments: jest.fn().mockResolvedValue(2),
     };
 
     auditService = new AuditService(configService as unknown as ConfigService);
@@ -44,7 +49,7 @@ describe("AuditService", () => {
     jest.clearAllMocks();
   });
 
-  it("findAll returns up to 50 logs ordered by createdAt desc", async () => {
+  it("findAll returns a paginated envelope ordered by createdAt desc", async () => {
     const logs = [
       createAuditLog("vehicle.updated"),
       createAuditLog("vehicle.created"),
@@ -52,12 +57,21 @@ describe("AuditService", () => {
 
     findCursor.toArray.mockResolvedValue(logs);
 
-    const result = await auditService.findAll();
+    const result = await auditService.findAll(1, 20);
 
     expect(collection.find).toHaveBeenCalledWith({});
     expect(findCursor.sort).toHaveBeenCalledWith({ createdAt: -1 });
-    expect(findCursor.limit).toHaveBeenCalledWith(50);
-    expect(result).toEqual([
+    expect(findCursor.skip).toHaveBeenCalledWith(0);
+    expect(findCursor.limit).toHaveBeenCalledWith(20);
+    expect(result.meta).toEqual({
+      page: 1,
+      limit: 20,
+      total: 2,
+      totalPages: 1,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    });
+    expect(result.data).toEqual([
       expect.objectContaining({
         id: logs[0]._id.toString(),
         event: "vehicle.updated",

@@ -6,6 +6,8 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { PaginatedDto } from "../../common/pagination/paginated.dto";
+import { paginate } from "../../common/pagination/paginate";
 import { AuditPublisherService } from "../audit/audit-publisher.service";
 import { Model } from "../models/entities/model.entity";
 import { CreateVehicleDto } from "./dto/create-vehicle.dto";
@@ -51,25 +53,33 @@ export class VehiclesService {
     return this.findOne(savedVehicle.id);
   }
 
-  async findAll(): Promise<Vehicle[]> {
-    const cachedVehicles = await this.vehiclesCacheService.getList();
+  async findAll(
+    page: number,
+    limit: number,
+  ): Promise<PaginatedDto<Vehicle>> {
+    const cachedVehicles = await this.vehiclesCacheService.getList(page, limit);
 
     if (cachedVehicles) {
       return cachedVehicles;
     }
 
-    const vehicles = await this.vehiclesRepository.find({
+    const [vehicles, total] = await this.vehiclesRepository.findAndCount({
       relations: {
         model: true,
       },
       order: {
         createdAt: "ASC",
+        id: "ASC",
       },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
-    await this.vehiclesCacheService.setList(vehicles);
+    const result = paginate(vehicles, total, page, limit);
 
-    return vehicles;
+    await this.vehiclesCacheService.setList(page, limit, result);
+
+    return result;
   }
 
   async findOne(id: number): Promise<Vehicle> {
