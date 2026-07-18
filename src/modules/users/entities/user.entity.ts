@@ -1,3 +1,4 @@
+import { ApiHideProperty } from "@nestjs/swagger";
 import {
   Column,
   CreateDateColumn,
@@ -20,6 +21,7 @@ export class User {
   @Column({ name: "email", type: "nvarchar", length: 255, unique: true })
   email!: string;
 
+  @ApiHideProperty()
   @Column({ name: "password_hash", type: "nvarchar", length: 255 })
   passwordHash!: string;
 

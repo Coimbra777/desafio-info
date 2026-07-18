@@ -1,3 +1,4 @@
+import { ApiHideProperty } from "@nestjs/swagger";
 import {
   Column,
   CreateDateColumn,
@@ -30,10 +31,12 @@ export class Model {
   @Column({ name: "created_by", type: "int" })
   createdBy!: number;
 
+  @ApiHideProperty()
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: "created_by" })
   creator!: User;
 
+  @ApiHideProperty()
   @OneToMany(() => Vehicle, (vehicle) => vehicle.model)
   vehicles!: Vehicle[];
 
