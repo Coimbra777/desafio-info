@@ -1,6 +1,6 @@
-# Desafio Info
+# Aivacol
 
-API backend do desafio técnico da plataforma de gestão de frotas da Aivacol.
+API backend da plataforma de gestão de frotas da Aivacol.
 
 O objetivo do projeto é entregar uma base simples, fácil de rodar e fácil de explicar, cobrindo autenticação, CRUD principal de frota, cache com Redis, mensageria com RabbitMQ e auditoria persistida em MongoDB.
 
