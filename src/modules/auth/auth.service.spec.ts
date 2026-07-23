@@ -11,13 +11,14 @@ jest.mock("bcrypt", () => ({
 
 describe("AuthService", () => {
   let authService: AuthService;
-  let usersService: jest.Mocked<Pick<UsersService, "findByEmail">>;
+  let usersService: jest.Mocked<Pick<UsersService, "findByEmail" | "create">>;
   let jwtService: jest.Mocked<Pick<JwtService, "signAsync">>;
   let compareMock: jest.MockedFunction<typeof bcrypt.compare>;
 
   beforeEach(() => {
     usersService = {
       findByEmail: jest.fn(),
+      create: jest.fn(),
     };
 
     jwtService = {
@@ -57,6 +58,39 @@ describe("AuthService", () => {
       sub: user.id,
       nickname: user.nickname,
       email: user.email,
+    });
+  });
+
+  it("creates a user and returns a token on register (auto-login)", async () => {
+    const registerDto = {
+      name: "Nova Pessoa",
+      email: "nova.pessoa@example.com",
+      nickname: "nova",
+      password: "ChangeMe123!",
+    };
+    const created = {
+      id: 42,
+      nickname: "nova",
+      name: "Nova Pessoa",
+      email: "nova.pessoa@example.com",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    usersService.create.mockResolvedValue(created as never);
+    jwtService.signAsync.mockResolvedValue("jwt-token");
+
+    const result = await authService.register(registerDto);
+
+    expect(result).toEqual({
+      accessToken: "jwt-token",
+      tokenType: "Bearer",
+    });
+    expect(usersService.create).toHaveBeenCalledWith(registerDto);
+    expect(jwtService.signAsync).toHaveBeenCalledWith({
+      sub: created.id,
+      nickname: created.nickname,
+      email: created.email,
     });
   });
 

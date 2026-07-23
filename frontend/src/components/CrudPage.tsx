@@ -9,6 +9,7 @@ import {
 import type { ListParams } from "../lib/resource";
 import type { Paginated } from "../types/api";
 import { apiErrorMessage } from "../lib/api";
+import { useToast } from "./Toast";
 import { Modal } from "./Modal";
 import { Pagination } from "./Pagination";
 import { EmptyState, ErrorBanner, LoadingState } from "./ui";
@@ -71,6 +72,7 @@ type ModalState<T> =
 
 export function CrudPage<T, C, U>({ eyebrow, title, description, config }: Props<T, C, U>) {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [modal, setModal] = useState<ModalState<T>>({ mode: "closed" });
@@ -182,9 +184,14 @@ export function CrudPage<T, C, U>({ eyebrow, title, description, config }: Props
           mode={modal.mode}
           row={modal.mode === "edit" ? modal.row : undefined}
           onClose={() => setModal({ mode: "closed" })}
-          onSaved={() => {
+          onSaved={(savedMode) => {
             setModal({ mode: "closed" });
             invalidate();
+            toast.success(
+              savedMode === "create"
+                ? "Cadastro realizado com sucesso."
+                : "Alterações salvas com sucesso.",
+            );
           }}
         />
       )}
@@ -199,6 +206,7 @@ export function CrudPage<T, C, U>({ eyebrow, title, description, config }: Props
           onDone={() => {
             setConfirmRow(null);
             invalidate();
+            toast.success("Registro excluído com sucesso.");
           }}
         />
       )}
@@ -217,7 +225,7 @@ function ResourceForm<T, C, U>({
   mode: "create" | "edit";
   row?: T;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (mode: "create" | "edit") => void;
 }) {
   const fields = useMemo(() => config.fields(mode), [config, mode]);
   const [values, setValues] = useState<FormValues>(() => config.toValues(row));
@@ -230,7 +238,7 @@ function ResourceForm<T, C, U>({
       }
       return config.api.update(config.rowId(row as T), config.toUpdateDto(values));
     },
-    onSuccess: onSaved,
+    onSuccess: () => onSaved(mode),
   });
 
   const setValue = (name: string, value: string) =>

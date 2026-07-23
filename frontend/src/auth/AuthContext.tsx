@@ -16,11 +16,19 @@ interface JwtClaims {
   nickname: string | null;
 }
 
+export interface RegisterInput {
+  name: string;
+  email: string;
+  password: string;
+  nickname?: string;
+}
+
 interface AuthState {
   token: string | null;
   user: JwtClaims | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (input: RegisterInput) => Promise<void>;
   logout: () => void;
 }
 
@@ -57,15 +65,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(data.accessToken);
   }, []);
 
+  const register = useCallback(async (input: RegisterInput) => {
+    const { data } = await api.post<LoginResponse>("/auth/register", input);
+    tokenStore.set(data.accessToken);
+    setToken(data.accessToken);
+  }, []);
+
   const value = useMemo<AuthState>(() => {
     return {
       token,
       user: token ? decodeClaims(token) : null,
       isAuthenticated: Boolean(token),
       login,
+      register,
       logout,
     };
-  }, [token, login, logout]);
+  }, [token, login, register, logout]);
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 }

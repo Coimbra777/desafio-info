@@ -14,15 +14,18 @@ import "@fontsource/ibm-plex-mono/600.css";
 import "./styles/theme.css";
 import { App } from "./App";
 import { AuthProvider } from "./auth/AuthContext";
+import { ToastProvider } from "./components/Toast";
 import { queryClient } from "./lib/queryClient";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </ToastProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>,

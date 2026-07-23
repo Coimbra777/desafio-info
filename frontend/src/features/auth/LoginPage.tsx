@@ -2,11 +2,18 @@ import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import { apiErrorMessage } from "../../lib/api";
+import { useToast } from "../../components/Toast";
 import { ErrorBanner, Plate } from "../../components/ui";
 
+type Mode = "login" | "register";
+
 export function LoginPage() {
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated, login, register } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
+  const [mode, setMode] = useState<Mode>("login");
+  const [name, setName] = useState("");
+  const [nickname, setNickname] = useState("");
   const [email, setEmail] = useState("aivacol@example.com");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -16,15 +23,38 @@ export function LoginPage() {
     return <Navigate to="/" replace />;
   }
 
+  const isRegister = mode === "register";
+
+  const switchMode = (next: Mode) => {
+    setMode(next);
+    setError(null);
+    if (next === "register") setEmail("");
+  };
+
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
     setLoading(true);
     try {
-      await login(email.trim(), password);
+      if (isRegister) {
+        await register({
+          name: name.trim(),
+          email: email.trim(),
+          nickname: nickname.trim() || undefined,
+          password,
+        });
+        toast.success("Conta criada com sucesso. Bem-vindo!");
+      } else {
+        await login(email.trim(), password);
+      }
       navigate("/", { replace: true });
     } catch (err) {
-      setError(apiErrorMessage(err, "Credenciais inválidas."));
+      setError(
+        apiErrorMessage(
+          err,
+          isRegister ? "Não foi possível criar a conta." : "Credenciais inválidas.",
+        ),
+      );
     } finally {
       setLoading(false);
     }
@@ -53,10 +83,26 @@ export function LoginPage() {
 
       <section className="login-form-side">
         <div className="login-card">
-          <h2>Entrar</h2>
-          <p className="sub">Acesse o console com suas credenciais.</p>
+          <h2>{isRegister ? "Criar conta" : "Entrar"}</h2>
+          <p className="sub">
+            {isRegister
+              ? "Cadastre-se para acessar o console."
+              : "Acesse o console com suas credenciais."}
+          </p>
           {error && <ErrorBanner message={error} />}
           <form onSubmit={submit}>
+            {isRegister && (
+              <div className="field">
+                <label htmlFor="name">Nome</label>
+                <input
+                  id="name"
+                  type="text"
+                  value={name}
+                  autoComplete="name"
+                  onChange={(event) => setName(event.target.value)}
+                />
+              </div>
+            )}
             <div className="field">
               <label htmlFor="email">Email</label>
               <input
@@ -67,24 +113,61 @@ export function LoginPage() {
                 onChange={(event) => setEmail(event.target.value)}
               />
             </div>
+            {isRegister && (
+              <div className="field">
+                <label htmlFor="nickname">Nickname (opcional)</label>
+                <input
+                  id="nickname"
+                  type="text"
+                  value={nickname}
+                  autoComplete="nickname"
+                  onChange={(event) => setNickname(event.target.value)}
+                />
+              </div>
+            )}
             <div className="field">
               <label htmlFor="password">Senha</label>
               <input
                 id="password"
                 type="password"
                 value={password}
-                autoComplete="current-password"
+                autoComplete={isRegister ? "new-password" : "current-password"}
                 onChange={(event) => setPassword(event.target.value)}
               />
+              {isRegister && <div className="hint">Mínimo de 8 caracteres.</div>}
             </div>
             <button
               className="btn btn-primary"
               style={{ width: "100%", justifyContent: "center", marginTop: 6 }}
               disabled={loading}
             >
-              {loading ? "Entrando…" : "Entrar no console"}
+              {loading
+                ? isRegister
+                  ? "Criando…"
+                  : "Entrando…"
+                : isRegister
+                  ? "Criar conta"
+                  : "Entrar no console"}
             </button>
           </form>
+
+          <div className="auth-switch">
+            {isRegister ? (
+              <>
+                Já tem conta?{" "}
+                <button type="button" onClick={() => switchMode("login")}>
+                  Entrar
+                </button>
+              </>
+            ) : (
+              <>
+                Não tem conta?{" "}
+                <button type="button" onClick={() => switchMode("register")}>
+                  Criar conta
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </section>
     </div>

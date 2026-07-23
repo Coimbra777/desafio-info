@@ -37,14 +37,42 @@ api.interceptors.response.use(
   },
 );
 
+/**
+ * Traduz mensagens conhecidas do backend (em inglês) para português, padronizando
+ * o idioma exibido ao operador. Mensagens não mapeadas são exibidas como vêm.
+ */
+const MESSAGE_PT: Record<string, string> = {
+  "Invalid credentials": "Credenciais inválidas.",
+  "Email already exists": "Email já cadastrado.",
+  "Nickname already exists": "Nickname já em uso.",
+  "Brand name already exists": "Nome de marca já existe.",
+  "License plate already exists": "Placa já cadastrada.",
+  "Chassis already exists": "Chassi já cadastrado.",
+  "Renavam already exists": "Renavam já cadastrado.",
+  "User not found": "Usuário não encontrado.",
+  "Brand not found": "Marca não encontrada.",
+  "Model not found": "Modelo não encontrado.",
+  "Vehicle not found": "Veículo não encontrado.",
+  "Cannot delete brand because it has models linked":
+    "Não é possível excluir: existem modelos vinculados.",
+  "Cannot delete model because it has vehicles linked":
+    "Não é possível excluir: existem veículos vinculados.",
+  "Invalid audit log id": "Id de auditoria inválido.",
+  "Audit log not found": "Log de auditoria não encontrado.",
+};
+
+function translate(message: string): string {
+  return MESSAGE_PT[message] ?? message;
+}
+
 /** Extrai a mensagem de erro da API (400/404/409...) para exibir ao usuário. */
 export function apiErrorMessage(error: unknown, fallback = "Algo deu errado."): string {
   if (axios.isAxiosError(error)) {
+    if (error.code === "ERR_NETWORK") return "Sem conexão com a API.";
     const data = error.response?.data as { message?: string | string[] } | undefined;
     const message = data?.message;
-    if (Array.isArray(message)) return message.join(" · ");
-    if (typeof message === "string") return message;
-    if (error.code === "ERR_NETWORK") return "Sem conexão com a API.";
+    if (Array.isArray(message)) return message.map(translate).join(" · ");
+    if (typeof message === "string") return translate(message);
   }
   return fallback;
 }
